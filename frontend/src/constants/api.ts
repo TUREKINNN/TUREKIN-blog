@@ -1,0 +1,28 @@
+export const API = {
+  AUTH: {
+    ME: '/api/auth/me',
+    LOGIN: '/api/auth/login',
+    GUEST: '/api/auth/guest',
+    REGISTER: '/api/auth/register',
+    AVATAR: '/api/auth/avatar',
+    PROFILE: '/api/auth/profile',
+    LOGOUT: '/api/auth/logout',
+  },
+  ARTICLES: '/api/articles',
+  ARTICLE: (id: number) => `/api/articles/${id}`,
+  ARTICLE_PIN: (id: number) => `/api/articles/${id}/pin`,
+  ARTICLE_LIKE: (id: number) => `/api/articles/${id}/like`,
+  ARTICLE_COMMENTS: (articleId: number) => `/api/articles/${articleId}/comments`,
+  COMMENT: (commentId: number) => `/api/comments/${commentId}`,
+  COMMENT_PIN: (commentId: number) => `/api/comments/${commentId}/pin`,
+  COMMENT_LIKE: (commentId: number) => `/api/comments/${commentId}/like`,
+  CONFIG: '/api/config',
+  CONFIG_ABOUT: '/api/config/about',
+  BACKGROUNDS: '/api/backgrounds',
+  BACKGROUND: (id: number) => `/api/backgrounds/${id}`,
+  UPLOADS: {
+    BACKGROUND: '/api/uploads/background',
+    ARTICLE_IMAGE: '/api/uploads/article-image',
+  },
+  BROWSE: '/api/browse',
+} as const;

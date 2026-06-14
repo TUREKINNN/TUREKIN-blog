@@ -1,0 +1,63 @@
+# ===== 依赖 =====
+node_modules/
+.pnp
+.pnp.js
+
+# ===== 构建产物 =====
+frontend/dist/
+backend/dist/
+*.tsbuildinfo
+
+# ===== 环境变量 / 隐私文件 =====
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# ===== 日志 =====
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+pm2-*.log
+
+# ===== 上传文件 / 用户数据 =====
+backend/uploads/avatars/
+backend/uploads/backgrounds/
+backend/uploads/articles/
+backend/uploads/*.jpg
+backend/uploads/*.png
+backend/uploads/*.jpeg
+backend/uploads/*.gif
+backend/uploads/*.webp
+
+# ===== 数据库 =====
+*.db
+*.sqlite
+prisma/migrations/
+prisma/*.db
+
+# ===== PM2 =====
+.pm2/
+dump/
+
+# ===== 编辑器 / IDE =====
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ===== 系统 =====
+desktop.ini
+$RECYCLE.BIN/
+
+# ===== 缓存 =====
+.cache/
+.turbo/
+*.tsbuildinfo

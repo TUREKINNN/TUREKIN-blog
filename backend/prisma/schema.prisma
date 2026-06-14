@@ -1,0 +1,134 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  username     String    @unique @db.VarChar(50)
+  passwordHash String    @map("password_hash") @db.VarChar(255)
+  role         String    @default("visitor") @db.VarChar(20)
+  displayName  String    @map("display_name") @db.VarChar(100)
+  avatarUrl    String?   @map("avatar_url") @db.VarChar(500)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  articles     Article[]
+  comments     Comment[]
+  articleLikes ArticleLike[]
+  commentLikes CommentLike[]
+
+  @@index([role])
+  @@map("users")
+}
+
+model Article {
+  id          Int      @id @default(autoincrement())
+  title       String   @db.VarChar(200)
+  summary     String   @db.VarChar(500)
+  content     String   @db.LongText
+  coverImage  String?  @map("cover_image") @db.VarChar(500)
+  tags        Json     @default("[]")
+  category    String?  @db.VarChar(50)
+  readTime    Int      @default(5) @map("read_time")
+  likes       Int      @default(0)
+  pinned      Boolean  @default(false)
+  publishDate DateTime @default(now()) @map("publish_date")
+  authorId    Int      @map("author_id")
+  author      User     @relation(fields: [authorId], references: [id])
+  comments    Comment[]
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  articleLikes ArticleLike[]
+
+  @@index([pinned(sort: Desc), publishDate(sort: Desc)])
+  @@index([authorId])
+  @@map("articles")
+}
+
+model Comment {
+  id         Int           @id @default(autoincrement())
+  content    String        @db.Text
+  articleId  Int           @map("article_id")
+  authorId   Int           @map("author_id")
+  parentId   Int?          @map("parent_id")
+  pinned     Boolean       @default(false)
+  likesCount Int           @default(0) @map("likes_count")
+  createdAt  DateTime      @default(now()) @map("created_at")
+  article    Article       @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  author     User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parent     Comment?      @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies    Comment[]     @relation("CommentReplies")
+  likes      CommentLike[]
+
+  @@index([articleId])
+  @@map("comments")
+}
+
+model ArticleLike {
+  articleId Int     @map("article_id")
+  userId    Int     @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, userId])
+  @@map("article_likes")
+}
+
+model CommentLike {
+  commentId Int     @map("comment_id")
+  userId    Int     @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  comment   Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([commentId, userId])
+  @@map("comment_likes")
+}
+
+model BackgroundImage {
+  id           Int      @id @default(autoincrement())
+  filePath     String   @map("file_path") @db.VarChar(500)
+  originalName String   @map("original_name") @db.VarChar(255)
+  sizeBytes    BigInt   @default(0) @map("size_bytes")
+  uploadedAt   DateTime @default(now()) @map("uploaded_at")
+
+  @@map("background_images")
+}
+
+model SiteConfig {
+  configKey   String   @id @map("config_key") @db.VarChar(100)
+  configValue Json     @map("config_value")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("site_config")
+}
+
+model FriendLink {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(100)
+  url         String   @db.VarChar(500)
+  avatarUrl   String   @map("avatar_url") @db.VarChar(500)
+  description String   @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("friend_links")
+}
+
+model Music {
+  id        Int      @id @default(autoincrement())
+  title     String   @db.VarChar(200)
+  artist    String   @db.VarChar(100)
+  url       String   @db.VarChar(500)
+  coverUrl  String?  @map("cover_url") @db.VarChar(500)
+  duration  Int      @default(0)
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("music")
+}
