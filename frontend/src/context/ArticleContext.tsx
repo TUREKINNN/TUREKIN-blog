@@ -54,7 +54,9 @@ function mapArticleListItem(a: Record<string, unknown>): ArticleListItem {
     coverImage: (a.coverImage as string) || null,
     pinned: (a.pinned as boolean) || false,
     authorName: a.authorName as string,
+    category: (a.category as string) || null,
     commentCount: (a.commentCount as number) ?? 0,
+    contentLength: (a.contentLength as number) || 0,
   };
 }
 
@@ -141,7 +143,7 @@ export function ArticleProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const updateArticle = useCallback(async (id: number, data: {
-    title?: string; summary?: string; content?: string; tags?: string[]; coverImage?: string | null; readTime?: number; publishDate?: string;
+    title?: string; summary?: string; content?: string; tags?: string[]; coverImage?: string | null; readTime?: number; publishDate?: string; category?: string | null;
   }): Promise<ArticleListItem | null> => {
     try {
       const res = await fetch(`/api/articles/${id}`, {

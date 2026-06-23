@@ -88,10 +88,10 @@ export default function HomePage(){
 
   const PP=12;const totalPages=Math.max(1,Math.ceil(filtered.length/PP));
   const allTags=useMemo(()=>[...new Set(articles.flatMap(a=>a.tags))].sort(),[articles]);
-  const tc=useMemo(()=>articles.reduce((s,a)=>s+(a.contentLength||a.summary?.length||0),0),[articles]);
+  const tc=useMemo(()=>articles.reduce((s,a)=>s+(a.contentLength||0),0),[articles]);
   useEffect(()=>{setPage(1);scrollTo(0,0)},[tagFilter,search]);
 
-  const paged=useMemo(()=>filtered.slice((page-1)*PP,page*PP),[filtered,page]);
+  const paged=useMemo(()=>filtered,[filtered]);
   const[featured,...rest]=paged;
 
   return<>

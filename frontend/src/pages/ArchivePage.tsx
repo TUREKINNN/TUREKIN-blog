@@ -59,7 +59,7 @@ export default function ArchivePage() {
       if (!map.has(y)) map.set(y, []);
       map.get(y)!.push(a);
     });
-    return [...map.entries()].sort((a, b) => b[0] - a[0]);
+    return [...map.entries()].sort((a, b) => b[0] - a[0]).map(([y, items]) => [y, items.sort((x, y) => y.date.localeCompare(x.date))] as const);
   }, [filtered]);
 
   return <>

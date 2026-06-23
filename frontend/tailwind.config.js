@@ -22,11 +22,11 @@ export default {
         '20': '80px',
         '24': '96px',
       },
-      /* ===== 设计令牌：圆角 ===== */
+      /* ===== 设计令牌：圆角 — Apple HIG Squircle 连续曲率 ===== */
       borderRadius: {
-        'xs': '4px',
-        'sm': '6px',
-        'md': '8px',
+        'xs': '6px',
+        'sm': '8px',
+        'md': '10px',
         'lg': '12px',
         'xl': '16px',
         '2xl': '20px',
@@ -125,12 +125,12 @@ export default {
         'glow': '0 0 20px -4px rgb(99 102 241 / 0.2)',
         'inner-top': 'inset 0 1px 0 rgb(255 255 255 / 0.08)',
       },
-      /* ===== 设计令牌：动画 ===== */
+      /* ===== 设计令牌：动画 — Apple HIG 规范 ===== */
       animation: {
         'fade-in': 'fadeIn 0.4s ease-out both',
-        'slide-up': 'slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both',
-        'slide-down': 'slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) both',
-        'scale-in': 'scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both',
+        'slide-up': 'slideUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both',
+        'slide-down': 'slideDown 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both',
+        'scale-in': 'scaleIn 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both',
         'page-enter': 'pageEnter 0.4s ease-out both',
         'shimmer': 'shimmer 2.5s ease-in-out infinite',
         'float': 'float 6s ease-in-out infinite',

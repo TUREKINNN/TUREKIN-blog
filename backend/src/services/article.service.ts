@@ -2,7 +2,7 @@ import prisma from '../lib/prisma';
 import { Prisma } from '@prisma/client';
 import { notFound } from '../utils/errors';
 import type { ArticleListItem, ArticleDetail, PaginatedResponse, CommentItem } from '../types';
-const PAGE_SIZE = 15;
+const PAGE_SIZE = 100;
 
 const articleSelect = {
   id: true,
@@ -246,6 +246,6 @@ function formatListItem(
     publishDate: a.publishDate instanceof Date ? a.publishDate.toISOString().split('T')[0] : String(a.publishDate),
     commentCount: a._count?.comments ?? 0,
     category: a.category || null,
-    contentLength: a.content ? a.content.replace(/[#*`\n\r\s>\[\]()!\-_=+|{}\\:;"'<>,./?~@$%^&]/g, '').length : 0,
+    contentLength: a.content ? a.content.replace(/<[^>]*>/g, '').replace(/[\s\n\r]+/g, '').length : 0,
   };
 }

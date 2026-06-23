@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { ArrowLeft, Plus, Image as ImageIcon, Eye, Upload, X, Bold, Italic, Code, Link2, List } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useArticles } from '@/context/ArticleContext';
 import { useAuth } from '@/context/AuthContext';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
@@ -43,13 +44,12 @@ function ArticleForm() {
   const [summary, setSummary] = useState('');
   const [content, setContent] = useState('');
   const [tags, setTags] = useState<string[]>([]);
-  const [category, setCategory] = useState<string | null>(null);
-  const [availCategories, setAvailCategories] = useState<string[]>(['Project','Hermes','周热点','杂谈','开发者说']);
   const [coverImage, setCoverImage] = useState('');
   const [coverImageError, setCoverImageError] = useState('');
   const [coverDragOver, setCoverDragOver] = useState(false);
   const [coverUploading, setCoverUploading] = useState(false);
   const [tagInput, setTagInput] = useState('');
+  const [category, setCategory] = useState('');
   const [saving, setSaving] = useState(false);
   const [preview, setPreview] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -58,14 +58,6 @@ function ArticleForm() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
   const contentImageInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    fetch('/api/config/about').then(r => r.json()).then(j => {
-      if (j.success && j.data?.categories) {
-        try { setAvailCategories(JSON.parse(j.data.categories)); } catch {}
-      }
-    }).catch(() => {});
-  }, []);
 
   useEffect(() => {
     if (!isEditing || isNaN(articleId)) {
@@ -87,8 +79,8 @@ function ArticleForm() {
       setSummary(existingArticle.summary);
       setContent(existingArticle.content);
       setTags(existingArticle.tags);
-      setCategory(existingArticle.category || null);
       setCoverImage(existingArticle.coverImage || '');
+      setCategory(existingArticle.category || '');
     }
   }, [existingArticle]);
 
@@ -226,8 +218,8 @@ function ArticleForm() {
       summary: summary.trim() || content.trim().slice(0, 150) + '...',
       content: content.trim(),
       tags: tags.length > 0 ? tags : ['未分类'],
+      category: category.trim() || null,
       coverImage: coverImage.trim() || null,
-      category: category,
     };
 
     try {
@@ -251,29 +243,20 @@ function ArticleForm() {
     } finally {
       setSaving(false);
     }
-  }, [title, summary, content, tags, coverImage, category, isEditing, articleId, createArticle, updateArticle, navigate]);
-
-  const handleBack = useCallback(() => {
-    // 智能返回：有历史记录就回退，否则去首页
-    if (window.history.length > 1) {
-      navigate(-1);
-    } else {
-      navigate('/');
-    }
-  }, [navigate]);
+  }, [title, summary, content, tags, category, coverImage, isEditing, articleId, createArticle, updateArticle, navigate]);
 
   const subtitle = loading ? '加载中...' : isEditing ? '编辑文章' : '发布新文章';
 
   return (
     <div className="animate-slide-up article-detail">
       <div className="flex items-center justify-between mb-6">
-        <button
-          onClick={handleBack}
-          className="inline-flex items-center gap-1.5 text-dark-500 hover:text-dark-800 transition-colors text-sm bg-transparent border-0 cursor-pointer"
+        <Link
+          to="/admin"
+          className="inline-flex items-center gap-1.5 text-apple-gray dark:text-apple-dark-gray hover:text-apple-dark dark:hover:text-white transition-colors text-sm"
         >
           <ArrowLeft size={16} />
-          返回
-        </button>
+          返回管理面板
+        </Link>
         <button
           onClick={() => setPreview(!preview)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-800 text-apple-gray dark:text-apple-dark-gray hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
@@ -416,6 +399,19 @@ function ArticleForm() {
           </div>
 
           <div>
+            <label className="block text-xs font-medium text-apple-dark dark:text-apple-dark-gray mb-1.5">分区</label>
+            <select value={category} onChange={e => setCategory(e.target.value)}
+              className="w-full px-4 py-2 rounded-xl text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-apple-dark dark:text-white focus:border-blue-400 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all">
+              <option value="">自动归类</option>
+              <option value="Hermes">Hermes</option>
+              <option value="周热点">周热点</option>
+              <option value="Project">Project</option>
+              <option value="杂谈">杂谈</option>
+              <option value="开发者说">开发者说</option>
+            </select>
+          </div>
+
+          <div>
             <label className="block text-xs font-medium text-apple-dark dark:text-apple-dark-gray mb-1.5">标签</label>
             <div className="flex flex-wrap gap-1.5 mb-2">
               {tags.map((tag) => (
@@ -455,23 +451,6 @@ function ArticleForm() {
                   className="tag text-xs hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                 >
                   + {tag}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* 分类选择 */}
-          <div>
-            <label className="block text-xs font-medium text-dark-500 mb-2">分类</label>
-            <div className="flex flex-wrap gap-2">
-              {[null, ...availCategories].map(cat => (
-                <button key={cat ?? 'none'} type="button"
-                  onClick={() => setCategory(cat)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border
-                    ${category === cat
-                      ? 'bg-accent-500/15 text-accent-400 border-accent-400/30'
-                      : 'bg-white/[0.03] text-dark-500 border-white/[0.06] hover:border-white/[0.12]'}`}>
-                  {cat ?? '未分类'}
                 </button>
               ))}
             </div>

@@ -26,22 +26,21 @@ model User {
 }
 
 model Article {
-  id          Int      @id @default(autoincrement())
-  title       String   @db.VarChar(200)
-  summary     String   @db.VarChar(500)
-  content     String   @db.LongText
-  coverImage  String?  @map("cover_image") @db.VarChar(500)
-  tags        Json     @default("[]")
-  category    String?  @db.VarChar(50)
-  readTime    Int      @default(5) @map("read_time")
-  likes       Int      @default(0)
-  pinned      Boolean  @default(false)
-  publishDate DateTime @default(now()) @map("publish_date")
-  authorId    Int      @map("author_id")
-  author      User     @relation(fields: [authorId], references: [id])
-  comments    Comment[]
+  id          Int       @id @default(autoincrement())
+  title       String    @db.VarChar(200)
+  summary     String    @db.Text
+  content     String    @db.LongText
+  coverImage  String?   @map("cover_image") @db.VarChar(500)
+  tags        Json      @default("[]")
+  readTime    Int       @default(5) @map("read_time")
+  likes       Int       @default(0)
+  pinned      Boolean   @default(false)
+  authorId    Int       @map("author_id")
+  publishDate DateTime  @map("publish_date")
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
+  author      User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments    Comment[]
   articleLikes ArticleLike[]
 
   @@index([pinned(sort: Desc), publishDate(sort: Desc)])
@@ -118,17 +117,4 @@ model FriendLink {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@map("friend_links")
-}
-
-model Music {
-  id        Int      @id @default(autoincrement())
-  title     String   @db.VarChar(200)
-  artist    String   @db.VarChar(100)
-  url       String   @db.VarChar(500)
-  coverUrl  String?  @map("cover_url") @db.VarChar(500)
-  duration  Int      @default(0)
-  sortOrder Int      @default(0) @map("sort_order")
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@map("music")
 }

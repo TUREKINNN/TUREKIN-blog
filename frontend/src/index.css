@@ -9,14 +9,19 @@
 
 @layer base {
   :root {
+    /* 液态玻璃参数 — Apple HIG 规范 */
     --glass-blur-1: 40px;
     --glass-blur-2: 24px;
-    --glass-blur-3: 14px;
-    --glass-saturate-1: 200%;
-    --glass-saturate-2: 180%;
-    --glass-saturate-3: 160%;
-    --transition-spring: cubic-bezier(0.16, 1, 0.3, 1);
-    --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+    --glass-blur-3: 16px;
+    --glass-saturate-1: 180%;
+    --glass-saturate-2: 160%;
+    --glass-saturate-3: 140%;
+    --transition-spring: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    --transition-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    /* 虹彩光晕色 */
+    --iridescent-1: rgba(168, 85, 247, 0.15);
+    --iridescent-2: rgba(59, 130, 246, 0.12);
+    --iridescent-3: rgba(236, 72, 153, 0.10);
   }
 
   html {
@@ -69,14 +74,43 @@
   :root:not(.dark) .bg-dark-0,
   :root:not(.dark) .bg-surface-950 { background-color: #fafafa !important; }
 
-  /* 亮色模式：玻璃面板适配 */
+  /* 亮色模式：玻璃面板适配 — 液态玻璃 */
   :root:not(.dark) .glass-deep {
     background: rgba(255,255,255,0.82);
-    border-color: rgba(0,0,0,0.06);
+    border-color: rgba(0,0,0,0.08);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.9),
+      inset 0 0 20px rgba(168, 85, 247, 0.05);
+  }
+  :root:not(.dark) .glass-deep::before {
+    background: linear-gradient(
+      135deg,
+      rgba(168, 85, 247, 0.08),
+      transparent 30%,
+      rgba(59, 130, 246, 0.06) 50%,
+      transparent 70%,
+      rgba(236, 72, 153, 0.05)
+    );
   }
   :root:not(.dark) .glass-panel {
     background: rgba(255,255,255,0.72);
-    border-color: rgba(0,0,0,0.06);
+    border-color: rgba(0,0,0,0.08);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.8),
+      0 4px 24px rgba(0,0,0,0.06),
+      0 0 0 1px rgba(0,0,0,0.03);
+  }
+  :root:not(.dark) .glass-panel::after {
+    background: conic-gradient(
+      from 0deg,
+      transparent 0%,
+      rgba(168, 85, 247, 0.06) 10%,
+      transparent 20%,
+      rgba(59, 130, 246, 0.05) 30%,
+      transparent 40%,
+      rgba(236, 72, 153, 0.04) 50%,
+      transparent 60%
+    );
   }
   :root:not(.dark) .glass-input,
   :root:not(.dark) .search-box {
@@ -134,30 +168,73 @@
    =================================================================== */
 @layer components {
 
-  /* ===== 玻璃层级 1: 深层（导航/侧边栏） ===== */
+  /* ===== 玻璃层级 1: 深层（导航/侧边栏） — Apple Liquid Glass ===== */
   .glass-deep {
-    background: rgba(15,15,18,0.82);
-    backdrop-filter: blur(var(--glass-blur-1)) saturate(var(--glass-saturate-1));
-    -webkit-backdrop-filter: blur(var(--glass-blur-1)) saturate(var(--glass-saturate-1));
-    border-right: 1px solid rgba(255,255,255,0.06);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    /* 半透明背景 — 必须半透明才能看到模糊效果 */
+    background: rgba(15, 15, 18, 0.6) !important;
+    /* 模糊 + 饱和度 — 核心液态玻璃效果 */
+    backdrop-filter: blur(40px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
+    /* 菲涅尔边缘高光 — 极细白边 */
+    border-right: 1px solid rgba(255, 255, 255, 0.15) !important;
+    /* 内发光 */
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.15),
+      0 0 30px rgba(0, 0, 0, 0.3) !important;
   }
+  /* 亮色模式 */
   :root:not(.dark) .glass-deep {
-    background: rgba(255,255,255,0.8);
-    border-color: rgba(0,0,0,0.06);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+    background: rgba(255, 255, 255, 0.65) !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.8),
+      0 0 20px rgba(0, 0, 0, 0.1) !important;
   }
 
-  /* ===== 玻璃层级 2: 中层（卡片/面板） ===== */
+  /* ===== 玻璃层级 2: 中层（卡片/面板） — 液态玻璃 ===== */
   .glass-panel {
     background: rgba(20,20,24,0.65);
     backdrop-filter: blur(var(--glass-blur-2)) saturate(var(--glass-saturate-2));
     -webkit-backdrop-filter: blur(var(--glass-blur-2)) saturate(var(--glass-saturate-2));
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
     box-shadow:
-      inset 0 1px 0 rgba(255,255,255,0.04),
-      0 4px 24px rgba(0,0,0,0.2);
+      inset 0 1px 0 rgba(255,255,255,0.1),
+      0 4px 24px rgba(0,0,0,0.25),
+      0 0 0 1px rgba(255,255,255,0.05);
+    position: relative;
+    overflow: hidden;
+  }
+  /* 虹彩旋转光晕 — 始终显示 */
+  .glass-panel::after {
+    content: '';
+    position: absolute;
+    top: -60%; left: -60%;
+    width: 220%; height: 220%;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0%,
+      var(--iridescent-1) 8%,
+      transparent 16%,
+      var(--iridescent-2) 24%,
+      transparent 32%,
+      var(--iridescent-3) 40%,
+      transparent 48%,
+      var(--iridescent-1) 56%,
+      transparent 64%,
+      var(--iridescent-2) 72%,
+      transparent 80%
+    );
+    opacity: 0.4;
+    pointer-events: none;
+    animation: iridescentRotate 12s linear infinite;
+  }
+  .glass-panel:hover::after {
+    opacity: 0.7;
+  }
+  @keyframes iridescentRotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
   }
   :root:not(.dark) .glass-panel {
     background: rgba(255,255,255,0.7);
@@ -191,32 +268,31 @@
     background: rgba(255,255,255,0.85);
   }
 
-  /* ===== 卡片系统 ===== */
+  /* ===== 卡片系统 — Apple Liquid Glass ===== */
   .card {
-    background: rgba(20,20,24,0.6);
-    backdrop-filter: blur(var(--glass-blur-2)) saturate(var(--glass-saturate-2));
-    -webkit-backdrop-filter: blur(var(--glass-blur-2)) saturate(var(--glass-saturate-2));
-    border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 14px;
+    background: rgba(20, 20, 24, 0.5) !important;
+    backdrop-filter: blur(20px) saturate(160%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 16px;
     box-shadow:
-      inset 0 1px 0 rgba(255,255,255,0.03),
-      0 2px 12px rgba(0,0,0,0.15);
-    transition: all 0.35s var(--transition-spring);
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      0 4px 16px rgba(0, 0, 0, 0.25) !important;
+    transition: all 280ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
   .card:hover {
-    background: rgba(28,28,32,0.78);
-    border-color: rgba(255,255,255,0.1);
+    background: rgba(28, 28, 32, 0.65) !important;
     box-shadow:
-      inset 0 1px 0 rgba(255,255,255,0.06),
-      0 8px 32px rgba(0,0,0,0.3);
+      inset 0 1px 0 rgba(255, 255, 255, 0.15),
+      0 8px 24px rgba(0, 0, 0, 0.3) !important;
     transform: translateY(-2px);
   }
+  :root:not(.dark) .card {
+    background: rgba(255, 255, 255, 0.6) !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+  }
   :root:not(.dark) .card:hover {
-    background: rgba(255,255,255,0.85);
-    border-color: rgba(0,0,0,0.1);
-    box-shadow:
-      inset 0 1px 0 rgba(255,255,255,0.8),
-      0 8px 32px rgba(0,0,0,0.06);
+    background: rgba(255, 255, 255, 0.75) !important;
   }
 
   /* 卡片光泽扫过 */
@@ -234,6 +310,20 @@
   @keyframes shineSweep {
     from { background-position: 200% 0; }
     to { background-position: -200% 0; }
+  }
+
+  /* ===== 侧边栏搜索框 — Liquid Glass ===== */
+  aside input[type="text"],
+  aside .search-box {
+    background: rgba(25, 25, 30, 0.4) !important;
+    backdrop-filter: blur(16px) saturate(140%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(140%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+  :root:not(.dark) aside input[type="text"],
+  :root:not(.dark) aside .search-box {
+    background: rgba(255, 255, 255, 0.5) !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
   }
 
   /* ===== 标签系统 ===== */
@@ -273,17 +363,17 @@
     border-color: var(--accent-400, rgba(99,102,241,0.25));
   }
 
-  /* ===== 按钮系统 ===== */
+  /* ===== 按钮系统 — 液态弹性 ===== */
   .btn {
     display: inline-flex; align-items: center; gap: 6px;
     padding: 8px 18px; font-size: 0.8125rem; font-weight: 500;
-    border-radius: 10px;
-    transition: all 0.2s var(--transition-smooth);
+    border-radius: 12px;
+    transition: all 0.35s var(--transition-spring);
     cursor: pointer; letter-spacing: 0.01em;
   }
   .btn:active:not(:disabled) {
-    transform: scale(0.96);
-    transition: transform 0.08s ease;
+    transform: scale(0.92);
+    transition: transform 0.1s var(--transition-spring);
   }
   .btn-primary {
     background: linear-gradient(135deg, var(--accent-500, #6366f1), var(--accent-600, #4f46e5));
@@ -380,6 +470,10 @@
     box-shadow: 0 0 0 3px rgba(99,102,241,0.06);
   }
 }
+
+/* ===================================================================
+   NOTE: 液态玻璃全局覆盖已移至文件末尾（最高 CSS 优先级）
+   =================================================================== */
 
 /* ===================================================================
    UTILITIES
@@ -520,29 +614,55 @@
 }
 :root:not(.dark) .stat-label { color: rgba(30,27,75,0.4); }
 
-/* Hero 统计玻璃卡片 */
+/* Hero 统计玻璃卡片 — 液态玻璃 */
 .hero-stat {
   background: rgba(255,255,255,0.06);
-  backdrop-filter: blur(10px) saturate(160%);
-  -webkit-backdrop-filter: blur(10px) saturate(160%);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 14px; padding: 12px 20px;
-  transition: all 0.3s var(--transition-spring);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 18px; padding: 12px 20px;
+  transition: all 0.4s var(--transition-spring);
+  position: relative;
+  overflow: hidden;
+}
+.hero-stat::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 200%; height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,0.08),
+    transparent
+  );
+  transition: left 0.6s ease;
+}
+.hero-stat:hover::before {
+  left: 100%;
 }
 :root:not(.dark) .hero-stat {
   background: rgba(255,255,255,0.7);
   border-color: rgba(0,0,0,0.08);
-  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  box-shadow:
+    0 2px 12px rgba(0,0,0,0.04),
+    inset 0 1px 0 rgba(255,255,255,0.7);
 }
 .hero-stat:hover {
   background: rgba(255,255,255,0.1);
-  border-color: rgba(99,102,241,0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.2), 0 0 0 1px rgba(99,102,241,0.1);
+  border-color: rgba(168, 85, 247, 0.3);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow:
+    0 8px 32px rgba(0,0,0,0.3),
+    0 0 0 1px rgba(168, 85, 247, 0.15),
+    0 0 40px rgba(168, 85, 247, 0.1);
 }
 :root:not(.dark) .hero-stat:hover {
   background: rgba(255,255,255,0.9);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08), 0 0 0 1px rgba(99,102,241,0.15);
+  box-shadow:
+    0 8px 32px rgba(0,0,0,0.08),
+    0 0 0 1px rgba(168, 85, 247, 0.2),
+    0 0 30px rgba(168, 85, 247, 0.08);
 }
 
 /* ===== Hero 亮色模式 ===== */
@@ -595,19 +715,37 @@
   color: #1e293b;
 }
 
-/* 亮色卡片 */
+/* 亮色卡片 — 液态玻璃 */
 :root:not(.dark) .card {
   background: rgba(255,255,255,0.7);
-  backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
-  border: 1px solid rgba(0,0,0,0.05);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 1px 8px rgba(0,0,0,0.03);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.7),
+    0 1px 8px rgba(0,0,0,0.04),
+    0 0 0 1px rgba(0,0,0,0.02);
+}
+:root:not(.dark) .card::before {
+  background: linear-gradient(
+    135deg,
+    rgba(168, 85, 247, 0.1),
+    rgba(59, 130, 246, 0.08),
+    rgba(236, 72, 153, 0.06),
+    transparent 50%
+  );
 }
 :root:not(.dark) .card:hover {
   background: rgba(255,255,255,0.88);
   border-color: rgba(0,0,0,0.1);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 6px 24px rgba(0,0,0,0.06);
-  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.8),
+    0 8px 32px rgba(0,0,0,0.08),
+    0 0 30px rgba(168, 85, 247, 0.06);
+  transform: translateY(-4px) scale(1.01);
+}
+:root:not(.dark) .card:hover::before {
+  opacity: 1;
 }
 
 /* 亮色特色卡片 */
@@ -731,24 +869,31 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Hero 统计玻璃卡片 */
+/* Hero 统计玻璃卡片 — 样式由文件末尾 LIQUID GLASS 段统一管理 */
 .hero-stat {
-  background: rgba(255,255,255,0.06);
-  backdrop-filter: blur(10px) saturate(160%);
-  -webkit-backdrop-filter: blur(10px) saturate(160%);
-  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 14px; padding: 12px 20px;
   transition: all 0.3s var(--transition-spring);
+  position: relative;
+  overflow: hidden;
 }
-:root:not(.dark) .hero-stat {
-  background: rgba(0,0,0,0.03);
-  border-color: rgba(0,0,0,0.06);
+.hero-stat::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 200%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  transition: left 0.6s ease;
+}
+.hero-stat:hover::before {
+  left: 100%;
 }
 .hero-stat:hover {
-  background: rgba(255,255,255,0.1);
   border-color: rgba(99,102,241,0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.2), 0 0 0 1px rgba(99,102,241,0.1);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 8px 32px rgba(0,0,0,0.3),
+    0 0 0 1px rgba(99,102,241,0.15),
+    0 0 40px rgba(99,102,241,0.1) !important;
 }
 
 /* ===== 瀑布流卡片 ===== */
@@ -876,5 +1021,204 @@
 .sidebar-panel.sidebar-expanded { width: 240px; }
 @media (min-width: 1280px) {
   .sidebar-panel.sidebar-expanded { width: 256px; }
+}
+
+/* ===================================================================
+   LIQUID GLASS — 全局强制覆盖（文件末尾 = 最高 CSS 优先级）
+   仅视觉属性，零布局变更
+   =================================================================== */
+
+/* ─── 1. 侧边栏（Regular 变体）────────────────────────────── */
+aside.glass-deep,
+.glass-deep {
+  background: rgba(22, 22, 26, 0.65) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset -1px 0 0 rgba(255, 255, 255, 0.04) !important;
+}
+/* 侧边栏内层玻璃高光 — 伪元素叠加，不影响布局 */
+aside.glass-deep::before,
+.glass-deep::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  pointer-events: none !important;
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    transparent 30%,
+    rgba(99, 102, 241, 0.04) 50%,
+    transparent 70%,
+    rgba(139, 92, 246, 0.03) 100%
+  ) !important;
+  z-index: 0 !important;
+}
+
+/* ─── 2. 导航栏（移动端）────────────────────────────────── */
+nav.glass-deep,
+nav.glass,
+nav[class*="glass"] {
+  background: rgba(22, 22, 26, 0.65) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+/* ─── 3. 搜索框、筛选标签栏 ────────────────────────────── */
+aside input[type="text"],
+.glass-input {
+  background: rgba(30, 30, 36, 0.7) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 12px !important;
+}
+aside input[type="text"]:focus,
+.glass-input:focus {
+  background: rgba(35, 35, 42, 0.75) !important;
+  border-color: rgba(99, 102, 241, 0.35) !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.08) !important;
+}
+
+/* ─── 4. 数据统计卡片、文章卡片 ────────────────────────── */
+article.card,
+.glass-panel,
+.hero-stat {
+  background: rgba(30, 30, 36, 0.72) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 8px 32px rgba(0, 0, 0, 0.2) !important;
+}
+/* 卡片内层虹彩高光 */
+article.card::after,
+.glass-panel::after {
+  content: '' !important;
+  position: absolute !important;
+  top: -60% !important;
+  left: -60% !important;
+  width: 220% !important;
+  height: 220% !important;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0%,
+    rgba(168, 85, 247, 0.08) 8%,
+    transparent 16%,
+    rgba(59, 130, 246, 0.06) 24%,
+    transparent 32%,
+    rgba(236, 72, 153, 0.05) 40%,
+    transparent 48%
+  ) !important;
+  opacity: 0.5 !important;
+  pointer-events: none !important;
+  animation: iridescentRotate 12s linear infinite !important;
+  z-index: 0 !important;
+}
+article.card:hover::after,
+.glass-panel:hover::after {
+  opacity: 0.8 !important;
+}
+
+/* ─── 5. 发布文章按钮（Clear 变体）─────────────────────── */
+button.btn-primary,
+a.btn-primary {
+  background: rgba(0, 122, 255, 0.6) !important;
+  backdrop-filter: blur(16px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(190%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 2px 12px rgba(0, 122, 255, 0.2) !important;
+}
+button.btn-primary:hover,
+a.btn-primary:hover {
+  background: rgba(0, 122, 255, 0.72) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 4px 20px rgba(0, 122, 255, 0.3) !important;
+}
+
+/* ─── 6. 标签按钮 ──────────────────────────────────────── */
+.tag {
+  background: rgba(30, 30, 36, 0.7) !important;
+  backdrop-filter: blur(16px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+.tag:hover {
+  background: rgba(40, 40, 48, 0.75) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+.tag.active {
+  background: rgba(99, 102, 241, 0.18) !important;
+  border-color: rgba(99, 102, 241, 0.35) !important;
+}
+
+/* ─── 7. 侧边栏内部下拉面板（主题/底色选择器）───────────── */
+aside .bg-dark-100,
+aside div[class*="shadow-xl"] {
+  background: rgba(24, 24, 27, 0.85) !important;
+  backdrop-filter: blur(16px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* ─── 8. 音乐播放器面板 ────────────────────────────────── */
+.bg-dark-100\/90,
+.bg-dark-100\/95 {
+  background: rgba(24, 24, 27, 0.8) !important;
+  backdrop-filter: blur(20px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
+}
+
+/* ─── 9. 亮色模式覆盖 ──────────────────────────────────── */
+:root:not(.dark) aside.glass-deep,
+:root:not(.dark) .glass-deep {
+  background: rgba(255, 255, 255, 0.72) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+}
+:root:not(.dark) aside.glass-deep::before,
+:root:not(.dark) .glass-deep::before {
+  background: linear-gradient(
+    160deg,
+    rgba(99, 102, 241, 0.06) 0%,
+    transparent 40%,
+    rgba(139, 92, 246, 0.04) 60%,
+    transparent 100%
+  ) !important;
+}
+:root:not(.dark) nav.glass-deep,
+:root:not(.dark) nav.glass,
+:root:not(.dark) nav[class*="glass"] {
+  background: rgba(255, 255, 255, 0.72) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+:root:not(.dark) aside input[type="text"],
+:root:not(.dark) .glass-input {
+  background: rgba(255, 255, 255, 0.6) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+:root:not(.dark) article.card,
+:root:not(.dark) .glass-panel,
+:root:not(.dark) .hero-stat {
+  background: rgba(255, 255, 255, 0.72) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06) !important;
+}
+:root:not(.dark) button.btn-primary,
+:root:not(.dark) a.btn-primary {
+  background: rgba(0, 122, 255, 0.5) !important;
+}
+:root:not(.dark) .tag {
+  background: rgba(255, 255, 255, 0.6) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
 }
 

@@ -326,7 +326,7 @@ export default function AboutPage() {
           <div className="card p-6 sm:p-8 mt-8 border-l-4 border-blue-400 dark:border-blue-500">
             <h3 className="text-lg font-semibold text-apple-dark dark:text-white mb-4 flex items-center gap-2">
               <Link2 size={20} className="text-blue-500" />
-              友链
+              友站链接
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {friendLinks.map((link) => (
