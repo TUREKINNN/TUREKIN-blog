@@ -1056,47 +1056,28 @@
    ============================================================== */
 aside.glass-deep,
 .glass-deep {
-  /* 5 层渐变叠加 = 液态玻璃材质 */
+  /* 多层渐变：紫色基底让 hero 色彩穿透可见 */
   background:
-    /* L5 最亮高光条 — 右侧边缘菲涅尔 */
-    linear-gradient(
-      to left,
-      rgba(255, 255, 255, 0.10) 0%,
-      rgba(255, 255, 255, 0.03) 3%,
-      transparent 8%
+    linear-gradient(180deg,
+      rgba(255,255,255,0.25) 0%,
+      rgba(255,255,255,0.06) 20%,
+      transparent 50%
     ),
-    /* L4 内顶部高光带 */
-    linear-gradient(
-      to bottom,
-      rgba(255, 255, 255, 0.08) 0%,
-      rgba(255, 255, 255, 0.02) 15%,
-      transparent 30%
+    linear-gradient(160deg,
+      rgba(99,102,241,0.35) 0%,
+      rgba(139,92,246,0.15) 30%,
+      rgba(236,72,153,0.08) 60%,
+      transparent 80%
     ),
-    /* L3 虹彩渐变 — 模拟光折射 */
-    linear-gradient(
-      160deg,
-      rgba(99, 102, 241, 0.04) 0%,
-      transparent 30%,
-      rgba(139, 92, 246, 0.03) 50%,
-      transparent 70%,
-      rgba(236, 72, 153, 0.02) 100%
-    ),
-    /* L2 蓝紫色环境光 */
-    radial-gradient(
-      ellipse 120% 80% at 80% 20%,
-      rgba(99, 102, 241, 0.06),
-      transparent 60%
-    ),
-    /* L1 基底半透明色 */
-    rgba(22, 22, 26, 0.65) !important;
+    rgba(30, 25, 45, 0.70) !important;
   backdrop-filter: blur(24px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.18) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.22) !important;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    inset -1px 0 0 rgba(255, 255, 255, 0.04),
-    4px 0 24px rgba(0, 0, 0, 0.2) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.20),
+    inset -1px 0 0 rgba(255, 255, 255, 0.08),
+    4px 0 24px rgba(0, 0, 0, 0.35) !important;
 }
 
 /* ==============================================================
