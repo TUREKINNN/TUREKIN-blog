@@ -3,31 +3,38 @@
 @tailwind utilities;
 
 /* ===================================================================
-   NEBULA DESIGN SYSTEM v3.0
-   设计哲学: Linear × Stripe × Apple 融合 — 科技深色、克制精致
+   iOS 26 LIQUID GLASS DESIGN SYSTEM
+   设计哲学: 苹果 visionOS 液态玻璃 — 深度折射、内部流光、物理畸变
+   渲染策略: 纯 CSS + SVG 滤镜，零 JS 动画库，GPU 加速
    =================================================================== */
 
 @layer base {
   :root {
-    /* 液态玻璃参数 — blur 加大、饱和度提升 */
-    --glass-blur-1: 60px;
-    --glass-blur-2: 40px;
-    --glass-blur-3: 24px;
+    /* ===== 液态玻璃核心参数 ===== */
+    --glass-blur-1: 60px;    /* 深层：侧边栏 */
+    --glass-blur-2: 40px;    /* 中层：卡片/面板 */
+    --glass-blur-3: 24px;    /* 浅层：输入框/小元素 */
     --glass-saturate-1: 220%;
     --glass-saturate-2: 200%;
     --glass-saturate-3: 180%;
     --transition-spring: cubic-bezier(0.16, 1, 0.3, 1);
     --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
-    /* 虹彩光晕色 — 加强透明度 */
+
+    /* ===== 虹彩光流色 — 紫/粉/蓝系 ===== */
     --iridescent-1: rgba(168, 85, 247, 0.25);
     --iridescent-2: rgba(59, 130, 246, 0.20);
     --iridescent-3: rgba(236, 72, 153, 0.18);
-    /* 虹彩边框色 */
+    --iridescent-4: rgba(139, 92, 246, 0.15);
+
+    /* ===== 虹彩边框渐变 ===== */
     --glass-border-glow: linear-gradient(135deg,
       rgba(168, 85, 247, 0.4),
       rgba(59, 130, 246, 0.3),
       rgba(16, 185, 129, 0.2),
       rgba(236, 72, 153, 0.3));
+
+    /* ===== 内部流光角度 ===== */
+    --flow-angle: 0deg;
   }
 
   html {
@@ -314,14 +321,74 @@
    =================================================================== */
 @layer components {
 
-  /* ===== 液态玻璃 — iOS 26 Liquid Glass（SVG 位移滤镜架构） ===== */
+  /* ===== iOS 26 液态玻璃核心系统 ===== */
 
-  /* 玻璃层级 1: 深层（侧边栏） */
+  /* ---------------------------------------------------------------
+     @keyframes — 内部流光 / 虹彩偏移 / 液态变形
+     --------------------------------------------------------------- */
+
+  /* 内部流光：紫→蓝→粉→紫 缓慢游走 */
+  @keyframes liquidFlow {
+    0%   { --flow-angle: 0deg;   background-position: 0% 50%; }
+    25%  { --flow-angle: 90deg;  background-position: 50% 0%; }
+    50%  { --flow-angle: 180deg; background-position: 100% 50%; }
+    75%  { --flow-angle: 270deg; background-position: 50% 100%; }
+    100% { --flow-angle: 360deg; background-position: 0% 50%; }
+  }
+
+  /* 虹彩色彩偏移 */
+  @keyframes iridescentPulse {
+    0%, 100% {
+      background: conic-gradient(from 0deg at 30% 40%,
+        rgba(168,85,247,0.08), rgba(59,130,246,0.06),
+        rgba(236,72,153,0.05), rgba(139,92,246,0.07),
+        rgba(168,85,247,0.08));
+    }
+    33% {
+      background: conic-gradient(from 120deg at 60% 30%,
+        rgba(59,130,246,0.08), rgba(236,72,153,0.06),
+        rgba(168,85,247,0.05), rgba(59,130,246,0.07),
+        rgba(59,130,246,0.08));
+    }
+    66% {
+      background: conic-gradient(from 240deg at 40% 60%,
+        rgba(236,72,153,0.08), rgba(168,85,247,0.06),
+        rgba(59,130,246,0.05), rgba(236,72,153,0.07),
+        rgba(236,72,153,0.08));
+    }
+  }
+
+  /* 液态水滴缓慢变形 */
+  @keyframes morphBlob {
+    0%   { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+    25%  { border-radius: 58% 42% 38% 62% / 55% 35% 65% 45%; }
+    50%  { border-radius: 50% 50% 33% 67% / 55% 27% 73% 45%; }
+    75%  { border-radius: 33% 67% 58% 42% / 63% 38% 62% 37%; }
+    100% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+  }
+
+  /* 光晕呼吸 */
+  @keyframes glowBreathe {
+    0%, 100% { opacity: 0.06; transform: scale(1) rotate(0deg); }
+    50%      { opacity: 0.12; transform: scale(1.05) rotate(3deg); }
+  }
+
+  /* 光带扫过 */
+  @keyframes lightSweep {
+    0%   { transform: translateX(-100%) rotate(15deg); }
+    100% { transform: translateX(200%) rotate(15deg); }
+  }
+
+  /* ---------------------------------------------------------------
+     玻璃层级 1: 深层（侧边栏）— 最强折射 + 内部流光
+     --------------------------------------------------------------- */
   .glass-deep {
     position: relative;
     isolation: isolate;
     border-right: 1px solid rgba(255,255,255,0.08);
   }
+
+  /* 内层：玻璃厚度光影矩阵 */
   .glass-deep::before {
     content: '';
     position: absolute;
@@ -329,13 +396,24 @@
     z-index: 0;
     border-radius: inherit;
     box-shadow:
-      inset 2px -2px 2px -1px rgba(255,255,255,0.7),
-      inset -2px 2px 2px -1px rgba(255,255,255,0.5),
-      inset 8px -8px 4px -8px rgba(255,255,255,0.4),
-      inset -8px 8px 4px -8px rgba(255,255,255,0.25),
-      inset 0 0 3px rgba(0,0,0,0.5);
+      /* 顶部高光 — 玻璃上缘折射 */
+      inset 0 2px 1px -1px rgba(255,255,255,0.75),
+      /* 左侧高光 */
+      inset 2px 0 1px -1px rgba(255,255,255,0.5),
+      /* 右侧暗面 — 厚度感 */
+      inset -3px 0 2px -2px rgba(0,0,0,0.4),
+      /* 底部暗面 */
+      inset 0 -4px 3px -3px rgba(0,0,0,0.35),
+      /* 内部漫反射高光 */
+      inset 10px -10px 6px -10px rgba(255,255,255,0.3),
+      inset -10px 10px 6px -10px rgba(255,255,255,0.15),
+      /* 玻璃内部环境光 */
+      inset 0 0 20px rgba(168,85,247,0.04),
+      inset 0 0 40px rgba(59,130,246,0.03);
     background-color: rgba(255,255,255,0.04);
   }
+
+  /* 外层：SVG 折射畸变 + 模糊 */
   .glass-deep::after {
     content: '';
     position: absolute;
@@ -347,17 +425,72 @@
     filter: url(#glass-distortion);
     -webkit-filter: url(#glass-distortion);
   }
-  :root:not(.dark) .glass-deep::before {
-    box-shadow:
-      inset 2px -2px 2px -1px rgba(255,255,255,1),
-      inset -2px 2px 2px -1px rgba(255,255,255,0.8),
-      inset 8px -8px 4px -8px rgba(255,255,255,0.6),
-      inset -8px 8px 4px -8px rgba(255,255,255,0.45),
-      inset 0 0 3px rgba(0,0,0,0.08);
-    background-color: rgba(255,255,255,0.1);
+
+  /* 内部流光层 — 通过额外 HTML 元素实现，见 .liquid-flow */
+  .liquid-flow {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    overflow: hidden;
+    opacity: 0.7;
+  }
+  .liquid-flow::before {
+    content: '';
+    position: absolute;
+    inset: -50%;
+    background: conic-gradient(
+      from 0deg at 30% 40%,
+      transparent 0%,
+      rgba(168,85,247,0.08) 10%,
+      transparent 20%,
+      rgba(59,130,246,0.06) 30%,
+      transparent 40%,
+      rgba(236,72,153,0.05) 50%,
+      transparent 60%,
+      rgba(139,92,246,0.07) 70%,
+      transparent 80%,
+      rgba(168,85,247,0.06) 90%,
+      transparent 100%
+    );
+    animation: liquidFlow 12s ease-in-out infinite;
+    mix-blend-mode: screen;
+  }
+  /* 光带扫过效果 */
+  .liquid-flow::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 30%,
+      rgba(255,255,255,0.04) 45%,
+      rgba(255,255,255,0.08) 50%,
+      rgba(255,255,255,0.04) 55%,
+      transparent 70%
+    );
+    animation: lightSweep 8s ease-in-out infinite;
   }
 
-  /* 液态玻璃导航项 */
+  /* 浅色模式适配 */
+  :root:not(.dark) .glass-deep::before {
+    box-shadow:
+      inset 0 2px 1px -1px rgba(255,255,255,1),
+      inset 2px 0 1px -1px rgba(255,255,255,0.9),
+      inset -3px 0 2px -2px rgba(0,0,0,0.06),
+      inset 0 -4px 3px -3px rgba(0,0,0,0.04),
+      inset 10px -10px 6px -10px rgba(255,255,255,0.7),
+      inset -10px 10px 6px -10px rgba(255,255,255,0.5),
+      inset 0 0 20px rgba(168,85,247,0.03),
+      inset 0 0 40px rgba(59,130,246,0.02);
+    background-color: rgba(255,255,255,0.1);
+  }
+  :root:not(.dark) .liquid-flow::before {
+    opacity: 0.4;
+  }
+
+  /* 液态玻璃导航项 — 嵌入玻璃内部的视觉 */
   .liquid-nav {
     position: relative;
     isolation: isolate;
@@ -373,12 +506,22 @@
     z-index: 0;
     border-radius: inherit;
     box-shadow:
-      inset 1px -1px 2px -1px rgba(255,255,255,0.6),
-      inset -1px 1px 2px -1px rgba(255,255,255,0.4),
-      inset 4px -4px 2px -4px rgba(255,255,255,0.3),
-      inset -4px 4px 2px -4px rgba(255,255,255,0.2),
-      inset 0 0 2px rgba(0,0,0,0.3);
-    background-color: rgba(255,255,255,0.06);
+      /* 内凹玻璃碗效果 */
+      inset 0 2px 1px -1px rgba(255,255,255,0.65),
+      inset 0 -2px 1px -1px rgba(0,0,0,0.3),
+      inset 2px 0 1px -1px rgba(255,255,255,0.4),
+      inset -2px 0 1px -1px rgba(0,0,0,0.2),
+      /* 玻璃内部漫反射 */
+      inset 5px -5px 3px -5px rgba(255,255,255,0.25),
+      inset -5px 5px 3px -5px rgba(255,255,255,0.12),
+      /* 紫色内部辉光 */
+      inset 0 0 12px rgba(168,85,247,0.06),
+      inset 0 0 24px rgba(59,130,246,0.04);
+    background: linear-gradient(135deg,
+      rgba(255,255,255,0.06) 0%,
+      rgba(168,85,247,0.04) 30%,
+      rgba(59,130,246,0.03) 60%,
+      rgba(255,255,255,0.05) 100%);
   }
   .liquid-nav.active::after {
     content: '';
@@ -398,12 +541,13 @@
     z-index: 0;
     border-radius: inherit;
     box-shadow:
-      inset 1px -1px 1px -0.5px rgba(255,255,255,0.3),
-      inset -1px 1px 1px -0.5px rgba(255,255,255,0.2);
+      inset 0 1px 1px -0.5px rgba(255,255,255,0.25),
+      inset 0 -1px 1px -0.5px rgba(0,0,0,0.1),
+      inset 0 0 8px rgba(168,85,247,0.03);
     background-color: rgba(255,255,255,0.03);
   }
 
-  /* 液态玻璃搜索框 */
+  /* 液态玻璃搜索框 — 流体式内凹 */
   .liquid-search {
     position: relative;
     isolation: isolate;
@@ -418,10 +562,19 @@
     z-index: 0;
     border-radius: inherit;
     box-shadow:
-      inset 1px -1px 2px -1px rgba(255,255,255,0.35),
-      inset -1px 1px 2px -1px rgba(255,255,255,0.25),
-      inset 0 0 2px rgba(0,0,0,0.25);
-    background-color: rgba(255,255,255,0.03);
+      /* 内凹液面效果 — 顶部暗、底部亮 */
+      inset 0 3px 2px -2px rgba(0,0,0,0.35),
+      inset 0 -2px 1px -1px rgba(255,255,255,0.2),
+      inset 3px 0 2px -2px rgba(0,0,0,0.15),
+      inset -3px 0 2px -2px rgba(0,0,0,0.1),
+      /* 液面张力高光 */
+      inset 0 -1px 0 rgba(255,255,255,0.08),
+      /* 内部环境色 */
+      inset 0 0 15px rgba(168,85,247,0.03);
+    background: linear-gradient(180deg,
+      rgba(0,0,0,0.08) 0%,
+      rgba(255,255,255,0.02) 50%,
+      rgba(168,85,247,0.02) 100%);
   }
   .liquid-search::after {
     content: '';
@@ -436,11 +589,17 @@
   }
   .liquid-search:focus-within::before {
     box-shadow:
-      inset 1px -1px 2px -1px rgba(255,255,255,0.45),
-      inset -1px 1px 2px -1px rgba(255,255,255,0.35),
-      inset 0 0 2px rgba(0,0,0,0.25),
-      0 0 0 2px rgba(255,255,255,0.05);
-    background-color: rgba(255,255,255,0.05);
+      inset 0 3px 2px -2px rgba(0,0,0,0.4),
+      inset 0 -2px 2px -1px rgba(255,255,255,0.3),
+      inset 3px 0 2px -2px rgba(0,0,0,0.2),
+      inset -3px 0 2px -2px rgba(0,0,0,0.15),
+      inset 0 -1px 0 rgba(255,255,255,0.12),
+      inset 0 0 20px rgba(168,85,247,0.05),
+      0 0 0 2px rgba(99,102,241,0.08);
+    background: linear-gradient(180deg,
+      rgba(0,0,0,0.1) 0%,
+      rgba(255,255,255,0.03) 50%,
+      rgba(168,85,247,0.03) 100%);
   }
 
   /* 液态玻璃标签丸 */
@@ -505,7 +664,7 @@
     box-shadow: inset 0 1px 1px rgba(255,255,255,0.1);
   }
 
-  /* ===== 玻璃层级 2: 中层（卡片/面板） — 液态玻璃 SVG ===== */
+  /* ===== 玻璃层级 2: 中层（卡片/面板） — 深层折射容器 ===== */
   .glass-panel {
     position: relative;
     isolation: isolate;
@@ -519,12 +678,21 @@
     z-index: 0;
     border-radius: inherit;
     box-shadow:
-      inset 2px -2px 3px -1px rgba(255,255,255,0.5),
-      inset -2px 2px 3px -1px rgba(255,255,255,0.35),
-      inset 8px -8px 4px -8px rgba(255,255,255,0.25),
-      inset -8px 8px 4px -8px rgba(255,255,255,0.15),
-      inset 0 0 3px rgba(0,0,0,0.3),
-      0 4px 24px rgba(0,0,0,0.15);
+      /* 玻璃曲面光影 */
+      inset 0 2px 1px -1px rgba(255,255,255,0.55),
+      inset 0 -3px 2px -2px rgba(0,0,0,0.3),
+      inset 3px 0 2px -2px rgba(255,255,255,0.3),
+      inset -3px 0 2px -2px rgba(0,0,0,0.2),
+      /* 内部漫反射 */
+      inset 10px -10px 6px -10px rgba(255,255,255,0.2),
+      inset -10px 10px 6px -10px rgba(255,255,255,0.1),
+      /* 玻璃内部虹彩 */
+      inset 0 0 30px rgba(168,85,247,0.04),
+      inset 0 0 60px rgba(59,130,246,0.02),
+      /* 悬浮投影 */
+      0 8px 40px rgba(0,0,0,0.2),
+      0 2px 8px rgba(0,0,0,0.1),
+      0 0 0 1px rgba(255,255,255,0.03);
     background-color: rgba(255,255,255,0.04);
   }
   .glass-panel::after {
@@ -540,12 +708,15 @@
   }
   :root:not(.dark) .glass-panel::before {
     box-shadow:
-      inset 2px -2px 3px -1px rgba(255,255,255,0.9),
-      inset -2px 2px 3px -1px rgba(255,255,255,0.7),
-      inset 8px -8px 4px -8px rgba(255,255,255,0.5),
-      inset -8px 8px 4px -8px rgba(255,255,255,0.4),
-      inset 0 0 3px rgba(0,0,0,0.05),
-      0 4px 24px rgba(0,0,0,0.03);
+      inset 0 2px 1px -1px rgba(255,255,255,0.95),
+      inset 0 -3px 2px -2px rgba(0,0,0,0.05),
+      inset 3px 0 2px -2px rgba(255,255,255,0.8),
+      inset -3px 0 2px -2px rgba(0,0,0,0.03),
+      inset 10px -10px 6px -10px rgba(255,255,255,0.6),
+      inset -10px 10px 6px -10px rgba(255,255,255,0.4),
+      inset 0 0 30px rgba(168,85,247,0.03),
+      0 8px 32px rgba(0,0,0,0.06),
+      0 2px 8px rgba(0,0,0,0.03);
     background-color: rgba(255,255,255,0.08);
   }
 
@@ -608,7 +779,7 @@
     background: rgba(255,255,255,0.85);
   }
 
-  /* ===== 卡片系统 — 液态玻璃 ===== */
+  /* ===== 卡片系统 — 深层折射容器 ===== */
   .card {
     position: relative;
     isolation: isolate;
@@ -617,19 +788,28 @@
     transition: all 0.35s var(--transition-spring);
   }
   .card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      border-radius: inherit;
-      pointer-events: none;
-      box-shadow:
-        inset 2px -2px 3px -1px rgba(255,255,255,0.4),
-        inset -2px 2px 3px -1px rgba(255,255,255,0.28),
-      inset 6px -6px 3px -6px rgba(255,255,255,0.2),
-      inset -6px 6px 3px -6px rgba(255,255,255,0.12),
-      inset 0 0 2px rgba(0,0,0,0.25),
-      0 2px 12px rgba(0,0,0,0.1);
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    box-shadow:
+      /* 玻璃曲面 — 多层光影厚度 */
+      inset 0 2px 1px -1px rgba(255,255,255,0.45),
+      inset 0 -3px 2px -2px rgba(0,0,0,0.25),
+      inset 3px 0 2px -2px rgba(255,255,255,0.25),
+      inset -3px 0 2px -2px rgba(0,0,0,0.15),
+      /* 内部漫反射 */
+      inset 8px -8px 4px -8px rgba(255,255,255,0.18),
+      inset -8px 8px 4px -8px rgba(255,255,255,0.08),
+      /* 虹彩内部环境光 */
+      inset 0 0 25px rgba(168,85,247,0.03),
+      inset 0 0 50px rgba(59,130,246,0.02),
+      /* 悬浮投影 */
+      0 4px 20px rgba(0,0,0,0.15),
+      0 1px 4px rgba(0,0,0,0.08),
+      0 0 0 1px rgba(255,255,255,0.02);
     background-color: rgba(255,255,255,0.03);
   }
   .card::after {
@@ -644,36 +824,47 @@
     -webkit-filter: url(#glass-distortion-light);
   }
   .card:hover {
-    transform: translateY(-3px);
+    transform: translateY(-4px) scale(1.01);
   }
   .card:hover::before {
     box-shadow:
-      inset 2px -2px 4px -1px rgba(255,255,255,0.55),
-      inset -2px 2px 4px -1px rgba(255,255,255,0.38),
-      inset 6px -6px 3px -6px rgba(255,255,255,0.28),
-      inset -6px 6px 3px -6px rgba(255,255,255,0.18),
-      inset 0 0 2px rgba(0,0,0,0.25),
-      0 8px 32px rgba(0,0,0,0.2);
+      inset 0 2px 1px -1px rgba(255,255,255,0.55),
+      inset 0 -3px 2px -2px rgba(0,0,0,0.3),
+      inset 3px 0 2px -2px rgba(255,255,255,0.35),
+      inset -3px 0 2px -2px rgba(0,0,0,0.2),
+      inset 8px -8px 4px -8px rgba(255,255,255,0.25),
+      inset -8px 8px 4px -8px rgba(255,255,255,0.15),
+      inset 0 0 30px rgba(168,85,247,0.05),
+      inset 0 0 60px rgba(59,130,246,0.03),
+      0 12px 40px rgba(0,0,0,0.25),
+      0 4px 12px rgba(0,0,0,0.12),
+      0 0 0 1px rgba(255,255,255,0.04);
     background-color: rgba(255,255,255,0.05);
   }
   :root:not(.dark) .card::before {
     box-shadow:
-      inset 2px -2px 3px -1px rgba(255,255,255,0.9),
-      inset -2px 2px 3px -1px rgba(255,255,255,0.7),
-      inset 6px -6px 3px -6px rgba(255,255,255,0.5),
-      inset -6px 6px 3px -6px rgba(255,255,255,0.35),
-      inset 0 0 2px rgba(0,0,0,0.04),
-      0 2px 12px rgba(0,0,0,0.03);
+      inset 0 2px 1px -1px rgba(255,255,255,0.95),
+      inset 0 -3px 2px -2px rgba(0,0,0,0.04),
+      inset 3px 0 2px -2px rgba(255,255,255,0.8),
+      inset -3px 0 2px -2px rgba(0,0,0,0.02),
+      inset 8px -8px 4px -8px rgba(255,255,255,0.5),
+      inset -8px 8px 4px -8px rgba(255,255,255,0.3),
+      inset 0 0 25px rgba(168,85,247,0.02),
+      0 4px 16px rgba(0,0,0,0.04),
+      0 1px 4px rgba(0,0,0,0.02);
     background-color: rgba(255,255,255,0.08);
   }
   :root:not(.dark) .card:hover::before {
     box-shadow:
-      inset 2px -2px 4px -1px rgba(255,255,255,1),
-      inset -2px 2px 4px -1px rgba(255,255,255,0.8),
-      inset 6px -6px 3px -6px rgba(255,255,255,0.6),
-      inset -6px 6px 3px -6px rgba(255,255,255,0.45),
-      inset 0 0 2px rgba(0,0,0,0.04),
-      0 8px 32px rgba(0,0,0,0.04);
+      inset 0 2px 1px -1px rgba(255,255,255,1),
+      inset 0 -3px 2px -2px rgba(0,0,0,0.05),
+      inset 3px 0 2px -2px rgba(255,255,255,0.9),
+      inset -3px 0 2px -2px rgba(0,0,0,0.03),
+      inset 8px -8px 4px -8px rgba(255,255,255,0.6),
+      inset -8px 8px 4px -8px rgba(255,255,255,0.4),
+      inset 0 0 30px rgba(168,85,247,0.03),
+      0 12px 40px rgba(0,0,0,0.06),
+      0 4px 12px rgba(0,0,0,0.03);
     background-color: rgba(255,255,255,0.12);
   }
 
@@ -1039,16 +1230,17 @@
     z-index: 0;
     border-radius: inherit;
     box-shadow:
-      inset 1px -1px 2px -1px rgba(255,255,255,0.3),
-      inset -1px 1px 2px -1px rgba(255,255,255,0.2),
-      inset 0 0 2px rgba(0,0,0,0.15);
+      inset 0 1px 1px -0.5px rgba(255,255,255,0.35),
+      inset 0 -1px 1px -0.5px rgba(0,0,0,0.15),
+      inset 0 0 8px rgba(168,85,247,0.03);
     background-color: transparent;
     transition: all 0.35s var(--transition-spring);
   }
   .btn:hover::before {
     box-shadow:
-      inset 1px -1px 3px -1px rgba(255,255,255,0.5),
-      inset -1px 1px 3px -1px rgba(255,255,255,0.35),
+      inset 0 2px 2px -1px rgba(255,255,255,0.5),
+      inset 0 -2px 2px -1px rgba(0,0,0,0.2),
+      inset 0 0 12px rgba(168,85,247,0.06),
       0 0 12px rgba(99,102,241,0.08);
   }
   .btn-primary::before {
@@ -1066,18 +1258,18 @@
     z-index: 0;
     border-radius: inherit;
     box-shadow:
-      inset 1px -1px 2px -1px rgba(255,255,255,0.25),
-      inset -1px 1px 2px -1px rgba(255,255,255,0.15),
-      inset 0 0 2px rgba(0,0,0,0.12);
+      inset 0 1px 1px -0.5px rgba(255,255,255,0.25),
+      inset 0 -1px 1px -0.5px rgba(0,0,0,0.1),
+      inset 0 0 6px rgba(168,85,247,0.02);
     background-color: rgba(255,255,255,0.03);
     backdrop-filter: blur(4px) saturate(110%);
     -webkit-backdrop-filter: blur(4px) saturate(110%);
   }
   :root:not(.dark) .btn-ghost::before {
     box-shadow:
-      inset 1px -1px 2px -1px rgba(255,255,255,0.9),
-      inset -1px 1px 2px -1px rgba(255,255,255,0.7),
-      inset 0 0 2px rgba(0,0,0,0.04);
+      inset 0 1px 1px -0.5px rgba(255,255,255,0.9),
+      inset 0 -1px 1px -0.5px rgba(0,0,0,0.04),
+      inset 0 0 6px rgba(168,85,247,0.02);
     background-color: rgba(255,255,255,0.1);
   }
 
@@ -1319,14 +1511,18 @@
 }
 :root:not(.dark) .stat-label { color: rgba(30,27,75,0.4); }
 
-/* Hero 统计玻璃卡片 — 液态玻璃 */
+/* Hero 统计玻璃卡片 — 液态水滴形态 + 内部流光 */
 .hero-stat {
   position: relative;
   isolation: isolate;
   border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 18px; padding: 12px 20px;
+  border-radius: 24px;
+  padding: 16px 24px;
   transition: all 0.4s var(--transition-spring);
+  overflow: hidden;
 }
+
+/* 玻璃厚度光影 */
 .hero-stat::before {
   content: '';
   position: absolute;
@@ -1334,13 +1530,27 @@
   z-index: 0;
   border-radius: inherit;
   box-shadow:
-    inset 2px -2px 3px -1px rgba(255,255,255,0.5),
-    inset -2px 2px 3px -1px rgba(255,255,255,0.35),
-    inset 8px -8px 4px -8px rgba(255,255,255,0.25),
-    inset -8px 8px 4px -8px rgba(255,255,255,0.15),
-    inset 0 0 3px rgba(0,0,0,0.3);
+    /* 水滴表面张力 — 顶部高光带 */
+    inset 0 3px 2px -2px rgba(255,255,255,0.6),
+    /* 底部暗面 — 水滴厚度 */
+    inset 0 -4px 3px -3px rgba(0,0,0,0.35),
+    /* 左右曲面 */
+    inset 4px 0 3px -3px rgba(255,255,255,0.3),
+    inset -4px 0 3px -3px rgba(0,0,0,0.2),
+    /* 内部漫反射 */
+    inset 12px -12px 8px -12px rgba(255,255,255,0.2),
+    inset -12px 12px 8px -12px rgba(255,255,255,0.08),
+    /* 虹彩内部光晕 — 紫粉系 */
+    inset 0 0 30px rgba(168,85,247,0.06),
+    inset 0 0 60px rgba(236,72,153,0.03),
+    inset 0 0 90px rgba(59,130,246,0.02),
+    /* 悬浮投影 */
+    0 8px 32px rgba(0,0,0,0.2),
+    0 2px 8px rgba(0,0,0,0.1);
   background-color: rgba(255,255,255,0.04);
 }
+
+/* SVG 折射 + 模糊层 */
 .hero-stat::after {
   content: '';
   position: absolute;
@@ -1352,32 +1562,97 @@
   filter: url(#glass-distortion-light);
   -webkit-filter: url(#glass-distortion-light);
 }
+
+/* 内部流光层 — 数字后方缓慢游走 */
+.hero-stat-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  overflow: hidden;
+}
+.hero-stat-glow::before {
+  content: '';
+  position: absolute;
+  width: 120%;
+  height: 120%;
+  top: -10%;
+  left: -10%;
+  background: radial-gradient(
+    ellipse 60% 50% at var(--glow-x, 50%) var(--glow-y, 50%),
+    rgba(168,85,247,0.12) 0%,
+    rgba(59,130,246,0.08) 30%,
+    rgba(236,72,153,0.06) 50%,
+    transparent 70%
+  );
+  animation: glowBreathe 6s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+.hero-stat-glow::after {
+  content: '';
+  position: absolute;
+  width: 80%;
+  height: 80%;
+  top: 10%;
+  left: 10%;
+  background: radial-gradient(
+    circle at calc(100% - var(--glow-x, 50%)) calc(100% - var(--glow-y, 50%)),
+    rgba(59,130,246,0.1) 0%,
+    rgba(139,92,246,0.06) 40%,
+    transparent 60%
+  );
+  animation: glowBreathe 8s ease-in-out infinite reverse;
+  mix-blend-mode: screen;
+}
+
 :root:not(.dark) .hero-stat::before {
   box-shadow:
-    inset 2px -2px 3px -1px rgba(255,255,255,0.9),
-    inset -2px 2px 3px -1px rgba(255,255,255,0.7),
-    inset 0 0 3px rgba(0,0,0,0.05);
+    inset 0 3px 2px -2px rgba(255,255,255,0.95),
+    inset 0 -4px 3px -3px rgba(0,0,0,0.05),
+    inset 4px 0 3px -3px rgba(255,255,255,0.8),
+    inset -4px 0 3px -3px rgba(0,0,0,0.03),
+    inset 12px -12px 8px -12px rgba(255,255,255,0.6),
+    inset -12px 12px 8px -12px rgba(255,255,255,0.4),
+    inset 0 0 30px rgba(168,85,247,0.04),
+    inset 0 0 60px rgba(236,72,153,0.02),
+    0 8px 32px rgba(0,0,0,0.06),
+    0 2px 8px rgba(0,0,0,0.03);
   background-color: rgba(255,255,255,0.08);
 }
 .hero-stat:hover::before {
   box-shadow:
-    inset 2px -2px 3px -1px rgba(255,255,255,0.6),
-    inset -2px 2px 3px -1px rgba(255,255,255,0.45),
-    inset 8px -8px 4px -8px rgba(255,255,255,0.35),
-    inset -8px 8px 4px -8px rgba(255,255,255,0.25),
-    inset 0 0 3px rgba(0,0,0,0.3),
-    0 8px 32px rgba(0,0,0,0.2);
-  background-color: rgba(255,255,255,0.07);
+    inset 0 3px 2px -2px rgba(255,255,255,0.7),
+    inset 0 -4px 3px -3px rgba(0,0,0,0.4),
+    inset 4px 0 3px -3px rgba(255,255,255,0.4),
+    inset -4px 0 3px -3px rgba(0,0,0,0.25),
+    inset 12px -12px 8px -12px rgba(255,255,255,0.3),
+    inset -12px 12px 8px -12px rgba(255,255,255,0.15),
+    inset 0 0 40px rgba(168,85,247,0.08),
+    inset 0 0 80px rgba(236,72,153,0.04),
+    inset 0 0 120px rgba(59,130,246,0.03),
+    0 16px 48px rgba(0,0,0,0.25),
+    0 4px 16px rgba(0,0,0,0.12);
+  background-color: rgba(255,255,255,0.06);
 }
 .hero-stat:hover {
-  transform: translateY(-4px) scale(1.02);
+  transform: translateY(-6px) scale(1.03);
+}
+.hero-stat:hover .hero-stat-glow::before {
+  opacity: 0.18;
 }
 :root:not(.dark) .hero-stat:hover::before {
   box-shadow:
-    inset 2px -2px 3px -1px rgba(255,255,255,1),
-    inset -2px 2px 3px -1px rgba(255,255,255,0.8),
-    0 8px 32px rgba(0,0,0,0.05);
-  background-color: rgba(255,255,255,0.12);
+    inset 0 3px 2px -2px rgba(255,255,255,1),
+    inset 0 -4px 3px -3px rgba(0,0,0,0.06),
+    inset 4px 0 3px -3px rgba(255,255,255,0.9),
+    inset -4px 0 3px -3px rgba(0,0,0,0.04),
+    inset 12px -12px 8px -12px rgba(255,255,255,0.7),
+    inset -12px 12px 8px -12px rgba(255,255,255,0.5),
+    inset 0 0 40px rgba(168,85,247,0.05),
+    0 16px 48px rgba(0,0,0,0.08),
+    0 4px 16px rgba(0,0,0,0.04);
+  background-color: rgba(255,255,255,0.14);
 }
 
 /* ===== Hero 亮色模式 ===== */

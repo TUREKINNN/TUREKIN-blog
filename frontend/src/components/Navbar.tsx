@@ -35,8 +35,9 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   }, []);
 
   return (
-    <nav className="lg:hidden fixed top-0 left-0 right-0 z-30 glass transition-all duration-300">
-      <div className="flex items-center justify-between h-14 px-4">
+    <nav className="lg:hidden fixed top-0 left-0 right-0 z-30 glass-deep transition-all duration-300">
+      <div className="liquid-flow" />
+      <div className="flex items-center justify-between h-14 px-4 relative z-10">
         <button
           onClick={onMenuToggle}
           className="btn-icon"
@@ -63,7 +64,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
                 <Link2 size={18} className={`transition-colors ${showFriends ? 'text-blue-500' : 'text-apple-dark dark:text-white'}`} />
               </button>
               {showFriends && (
-                <div className="absolute right-0 top-full mt-1 w-56 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 py-1 z-50">
+                <div className="absolute right-0 top-full mt-1 w-56 glass-panel py-1 z-50">
                   {friendLinks.map((link) => (
                     <a
                       key={link.id}
@@ -71,7 +72,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={() => setShowFriends(false)}
-                      className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-apple-dark dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                      className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-apple-dark dark:text-white hover:bg-white/[0.04] transition-colors"
                     >
                       <img
                         src={link.avatarUrl}

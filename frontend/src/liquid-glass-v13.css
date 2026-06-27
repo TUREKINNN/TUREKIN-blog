@@ -1,5 +1,7 @@
-/* LIQUID GLASS v13 — Apple visionOS 物理光学 */
+/* LIQUID GLASS v14 — iOS 26 液态玻璃（由 index.css 统一管理）
+   此文件保留作为历史参考，所有样式已迁移至 index.css */
 
+/* 玻璃噪点纹理 */
 .glass-deep::after,
 nav.glass::after, nav.glass-deep::after, nav[class*="glass"]::after,
 article.card::after, .glass-panel::after {
@@ -8,7 +10,7 @@ article.card::after, .glass-panel::after {
   border-radius: inherit; pointer-events: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
   background-size: 200px 200px;
-  opacity: 0.035;
+  opacity: 0.03;
   mix-blend-mode: overlay;
 }
 
@@ -27,158 +29,41 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .glass-deep, nav.glass, nav.glass-deep, article.card, .glass-panel { animation: none !important; }
+  .glass-deep, nav.glass, nav.glass-deep, article.card, .glass-panel,
+  .hero-stat, .liquid-flow { animation: none !important; }
 }
 @media (prefers-reduced-transparency: reduce) {
   .glass-deep, nav.glass, nav.glass-deep, article.card, .glass-panel, .hero-stat,
-  .tag, aside input[type="text"], .glass-input {
+  .tag, aside input[type="text"], .glass-input, .liquid-flow {
     backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
   }
 }
 
-.glass-deep {
-  position: relative; isolation: isolate;
-  background: rgba(20, 20, 25, 0.15) !important;
-  backdrop-filter: blur(30px) saturate(180%) brightness(110%) !important;
-  -webkit-backdrop-filter: blur(30px) saturate(180%) brightness(110%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 4px 24px rgba(0,0,0,0.20) !important;
-  transition: background 0.4s ease, backdrop-filter 0.4s ease;
-}
-.glass-deep::before {
-  content: '';
-  position: absolute; inset: 0; z-index: 0;
-  pointer-events: none; border-radius: inherit;
-  background: radial-gradient(ellipse 140% 80% at 20% 0%, rgba(255,255,255,0.03), transparent 55%);
-}
-.glass-deep.is-hovered::before {
-  background:
-    radial-gradient(ellipse 420px 380px at var(--glow-x, 50%) var(--glow-y, 50%), rgba(255,255,255,0.07), transparent 60%),
-    radial-gradient(ellipse 140% 80% at 20% 0%, rgba(255,255,255,0.04), transparent 55%);
+/* 保留 v13 的 is-hovered 交互（由 liquid-glass.ts 驱动） */
+.glass-deep.is-hovered::before,
+nav.glass.is-hovered::before, nav.glass-deep.is-hovered::before {
+  box-shadow:
+    inset 0 2px 1px -1px rgba(255,255,255,0.7),
+    inset 0 -3px 2px -2px rgba(0,0,0,0.3),
+    inset 3px 0 2px -2px rgba(255,255,255,0.35),
+    inset -3px 0 2px -2px rgba(0,0,0,0.2),
+    inset 10px -10px 6px -10px rgba(255,255,255,0.25),
+    inset -10px 10px 6px -10px rgba(255,255,255,0.12),
+    inset 0 0 30px rgba(168,85,247,0.06),
+    inset 0 0 60px rgba(59,130,246,0.04),
+    0 8px 40px rgba(0,0,0,0.2),
+    0 2px 8px rgba(0,0,0,0.1);
+  background-color: rgba(255,255,255,0.06);
 }
 
-nav.glass, nav.glass-deep, nav[class*="glass"] {
-  position: relative;
-  background: rgba(20, 20, 25, 0.20) !important;
-  backdrop-filter: blur(30px) saturate(180%) brightness(110%) !important;
-  -webkit-backdrop-filter: blur(30px) saturate(180%) brightness(110%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-top: none !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.10), 0 4px 16px rgba(0,0,0,0.15) !important;
-  transition: background 0.4s ease, backdrop-filter 0.4s ease;
-}
-nav.glass::before, nav.glass-deep::before, nav[class*="glass"]::before {
-  content: '';
-  position: absolute; inset: 0; z-index: 0;
-  pointer-events: none; border-radius: inherit;
-  background: radial-gradient(ellipse 120% 80% at 50% 0%, rgba(255,255,255,0.03), transparent 55%);
-}
-nav.glass.is-hovered::before, nav.glass-deep.is-hovered::before, nav[class*="glass"].is-hovered::before {
-  background:
-    radial-gradient(ellipse 420px 380px at var(--glow-x, 50%) var(--glow-y, 50%), rgba(255,255,255,0.07), transparent 60%),
-    radial-gradient(ellipse 120% 80% at 50% 0%, rgba(255,255,255,0.04), transparent 55%);
-}
-
-article.card, .glass-panel {
-  position: relative;
-  background: rgba(20, 20, 25, 0.18) !important;
-  backdrop-filter: blur(30px) saturate(180%) brightness(110%) !important;
-  -webkit-backdrop-filter: blur(30px) saturate(180%) brightness(110%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.06) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 12px rgba(0,0,0,0.15) !important;
-  transition: background 0.4s ease, backdrop-filter 0.4s ease;
-}
-article.card::before, .glass-panel::before {
-  content: '';
-  position: absolute; inset: 0; z-index: 0;
-  pointer-events: none; border-radius: inherit;
-  background: radial-gradient(ellipse 120% 70% at 30% 0%, rgba(255,255,255,0.025), transparent 50%);
-}
-
-.hero-stat {
-  background: rgba(20, 20, 25, 0.18) !important;
-  backdrop-filter: blur(30px) saturate(180%) brightness(110%) !important;
-  -webkit-backdrop-filter: blur(30px) saturate(180%) brightness(110%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.06) !important;
-  border-radius: 16px !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 12px rgba(0,0,0,0.15) !important;
-}
-
-button.btn-primary, a.btn-primary {
-  background: rgba(0, 122, 255, 0.50) !important;
-  backdrop-filter: blur(30px) saturate(180%) brightness(110%) !important;
-  -webkit-backdrop-filter: blur(30px) saturate(180%) brightness(110%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.20), 0 2px 8px rgba(0,122,255,0.25) !important;
-}
-button.btn-primary:hover, a.btn-primary:hover {
-  background: rgba(0, 122, 255, 0.60) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 4px 16px rgba(0,122,255,0.30) !important;
-}
-.tag {
-  background: rgba(20, 20, 25, 0.18) !important;
-  backdrop-filter: blur(30px) saturate(180%) brightness(110%) !important;
-  -webkit-backdrop-filter: blur(30px) saturate(180%) brightness(110%) !important;
-  border: 1px solid rgba(255,255,255,0.06) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05) !important;
-}
-.tag:hover { background: rgba(30,30,35,0.22) !important; border-color: rgba(255,255,255,0.10) !important; }
-.tag.active {
-  background: rgba(99,102,241,0.12) !important;
-  border-color: rgba(99,102,241,0.25) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 8px rgba(99,102,241,0.08) !important;
-}
-
-aside input[type="text"], .glass-input {
-  background: rgba(20, 20, 25, 0.20) !important;
-  backdrop-filter: blur(30px) saturate(180%) brightness(110%) !important;
-  -webkit-backdrop-filter: blur(30px) saturate(180%) brightness(110%) !important;
-  border: 1px solid rgba(255,255,255,0.06) !important;
-  border-radius: 12px !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05) !important;
-}
-aside input[type="text"]:focus, .glass-input:focus {
-  background: rgba(25,25,30,0.25) !important;
-  border-color: rgba(99,102,241,0.30) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 0 0 2px rgba(99,102,241,0.06) !important;
-}
-
-aside .bg-dark-100, aside div[class*="shadow-xl"] {
-  background: rgba(20, 20, 25, 0.35) !important;
-  backdrop-filter: blur(30px) saturate(180%) brightness(110%) !important;
-  -webkit-backdrop-filter: blur(30px) saturate(180%) brightness(110%) !important;
-  border: 1px solid rgba(255,255,255,0.06) !important;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.25) !important;
-}
-
+/* 液态变形交互 */
 .liquid-deform {
   transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 }
 .liquid-deform:hover { transform: translateY(-1px); }
 .liquid-deform:active { transform: scale(0.98); transition: transform 0.1s cubic-bezier(0.25, 1, 0.5, 1); }
 
-:root:not(.dark) .glass-deep {
-  background: rgba(255, 255, 255, 0.65) !important;
-  border: 1px solid rgba(255, 255, 255, 0.20) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.50), 0 8px 32px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04) !important;
-}
-:root:not(.dark) nav.glass, :root:not(.dark) nav.glass-deep, :root:not(.dark) nav[class*="glass"] {
-  background: rgba(255, 255, 255, 0.65) !important;
-  border-color: rgba(255, 255, 255, 0.20) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.40), 0 4px 16px rgba(0,0,0,0.06) !important;
-}
-:root:not(.dark) article.card, :root:not(.dark) .glass-panel, :root:not(.dark) .hero-stat {
-  background: rgba(255,255,255,0.60) !important;
-  border-color: rgba(255, 255, 255, 0.18) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 4px 16px rgba(0,0,0,0.06) !important;
-}
-:root:not(.dark) aside input[type="text"], :root:not(.dark) .glass-input {
-  background: rgba(255,255,255,0.55) !important;
-  border-color: rgba(0,0,0,0.06) !important;
-}
-:root:not(.dark) button.btn-primary, :root:not(.dark) a.btn-primary { background: rgba(0, 122, 255, 0.45) !important; }
-:root:not(.dark) .tag { background: rgba(255,255,255,0.55) !important; border-color: rgba(0,0,0,0.06) !important; }
-
+/* 降级支持 */
 @supports not (backdrop-filter: blur(1px)) {
   .glass-deep, nav.glass, nav.glass-deep, nav[class*="glass"] { background: rgba(20, 20, 25, 0.85) !important; }
   :root:not(.dark) .glass-deep, :root:not(.dark) nav.glass, :root:not(.dark) nav.glass-deep { background: rgba(245, 245, 250, 0.85) !important; }

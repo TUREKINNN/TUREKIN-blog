@@ -105,12 +105,14 @@ export default function HomePage(){
         <div className="flex justify-center gap-2 sm:gap-4 mt-10 flex-wrap">
           {[{icon:FileText,label:'文章',v:articles.length},{icon:Tag,label:'标签',v:allTags.length},{icon:TrendingUp,label:'总字数',v:tc},{icon:Clock,label:'运行',v:0,rt:true}].map((s,i)=>s.rt?
             <div key={i} className="hero-stat text-center" style={{animationDelay:`${i*.1}s`}}>
-              <div className="stat-number font-mono tabular-nums"><RunningTime/></div>
-              <div className="stat-label">{s.label}</div>
+              <div className="hero-stat-glow" />
+              <div className="stat-number font-mono tabular-nums relative z-10"><RunningTime/></div>
+              <div className="stat-label relative z-10">{s.label}</div>
             </div>:
             <div key={i} className="hero-stat text-center" style={{animationDelay:`${i*.1}s`}}>
-              <div className="stat-number font-mono tabular-nums"><AnimatedNumber value={s.v}/></div>
-              <div className="stat-label">{s.label}</div>
+              <div className="hero-stat-glow" />
+              <div className="stat-number font-mono tabular-nums relative z-10"><AnimatedNumber value={s.v}/></div>
+              <div className="stat-label relative z-10">{s.label}</div>
             </div>
           )}
         </div>

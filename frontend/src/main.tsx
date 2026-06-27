@@ -7,6 +7,8 @@ import { ToastProvider } from './context/ToastContext';
 import ToastContainer from './components/Toast';
 import App from './App';
 import './index.css';
+import './liquid-glass-v13.css';
+import './liquid-glass';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

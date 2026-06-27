@@ -233,6 +233,7 @@ export default function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
   return (<>
     <aside ref={sidebarRef} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}
       className={`hidden lg:flex flex-col fixed left-0 top-0 bottom-0 z-40 transition-[width] duration-300 ease-out glass-deep overflow-hidden ${collapsed ? 'w-16' : 'w-60 xl:w-64'}`}>
+      <div className="liquid-flow" />
       <div className="flex-1 overflow-y-auto p-3 scrollbar-thin relative z-10">{sidebarContent}</div>
     </aside>
 
@@ -240,6 +241,7 @@ export default function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
       <div className="lg:hidden fixed inset-0 z-50">
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onMobileClose} />
         <aside className="absolute left-0 top-0 bottom-0 w-72 max-w-[85vw] glass-deep shadow-2xl animate-slide-up z-50">
+          <div className="liquid-flow" />
           <div className="h-full overflow-y-auto p-5 relative z-10">{sidebarContent}</div>
         </aside>
       </div>
