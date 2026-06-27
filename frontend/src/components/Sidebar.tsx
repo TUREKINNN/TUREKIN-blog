@@ -4,7 +4,7 @@ import { Search, X, Home, User, LogIn, Shield, LogOut, Camera, Settings, Link2, 
 import { useSearchFilter } from '@/context/SearchFilterContext';
 import { useAuth } from '@/context/AuthContext';
 import { useArticles } from '@/context/ArticleContext';
-import { useSiteTheme, THEME_PRESETS, BG_PRESETS } from '@/context/SiteThemeContext';
+import { useSiteTheme, THEME_PRESETS } from '@/context/SiteThemeContext';
 import AvatarUploadModal from '@/components/AvatarUploadModal';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -12,29 +12,20 @@ interface SidebarProps { isMobileOpen: boolean; onMobileClose: () => void; }
 interface FriendLink { id: number; name: string; url: string; avatarUrl: string; description: string; }
 
 const navLinkClass = (active: boolean) =>
-  `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
-    active
-      ? 'bg-white/[0.06] text-dark-900 dark:text-dark-900'
-      : 'text-dark-500 dark:text-dark-500 hover:bg-white/[0.04] hover:text-dark-800 dark:hover:text-dark-800'
-  }`;
+  `liquid-nav flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium ${active ? 'active text-white' : 'text-dark-500 hover:text-white'}`;
 
 const navLinkClassCollapsed = (active: boolean) =>
-  `flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 ${
-    active
-      ? 'bg-white/[0.06] text-dark-900 dark:text-dark-900'
-      : 'text-dark-500 dark:text-dark-500 hover:bg-white/[0.04] hover:text-dark-800 dark:hover:text-dark-800'
-  }`;
+  `liquid-nav flex items-center justify-center w-9 h-9 rounded-2xl ${active ? 'active text-white' : 'text-dark-500 hover:text-white'}`;
 
 export default function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
   const { search, tagFilter, setSearch, setTagFilter } = useSearchFilter();
   const { isAuthenticated, user, siteOwnerAvatarCached, siteOwnerName, siteOwnerDisplayName, logout } = useAuth();
   const { articles } = useArticles();
-  const { preset, setPreset, bgPreset, setBgPreset, bgPresets } = useSiteTheme();
+  const { preset, setPreset, mode, setMode, bgImage, setBgImage } = useSiteTheme();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(true);
   const [avatarModalOpen, setAvatarModalOpen] = useState(false);
   const [showPresets, setShowPresets] = useState(false);
-  const [showBgPresets, setShowBgPresets] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const leaveTimer = useRef<ReturnType<typeof setTimeout>>();
   const [friendLinks, setFriendLinks] = useState<FriendLink[]>([]);
@@ -77,7 +68,7 @@ export default function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
         <div className="relative mb-5">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-dark-500 pointer-events-none" />
           <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="搜索文章..."
-            className="w-full pl-9 pr-3 py-2.5 text-sm rounded-xl bg-white/[0.04] border border-white/[0.06] text-dark-900 placeholder:text-dark-500 focus:outline-none focus:ring-2 focus:ring-accent-500/20 transition-all" />
+            className="liquid-search w-full pl-9 pr-3 py-2.5 text-sm rounded-2xl text-dark-900 placeholder:text-dark-500 focus:outline-none transition-all" />
           {search && <button onClick={() => setSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-dark-500 hover:text-dark-800 transition-colors"><X size={14} /></button>}
         </div>
 
@@ -90,7 +81,7 @@ export default function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
           )}
           {isAuthenticated && user?.role === 'admin' && (
             <Link to="/admin" onClick={onMobileClose}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${location.pathname === '/admin' ? 'bg-accent-500/10 text-accent-400' : 'text-dark-500 hover:bg-accent-500/5 hover:text-accent-400'}`}>
+              className={`liquid-nav flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium ${location.pathname === '/admin' ? 'active text-accent-400' : 'text-dark-500 hover:text-accent-400'}`}>
               <Shield size={17} />管理面板
             </Link>
           )}
@@ -112,7 +103,7 @@ export default function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
           </div>
         )}
 
-        {/* 主题色 + 底色选择器 — 放这里避免误触退出 */}
+        {/* 主题色 + 深/浅色模式切换 */}
         <div className="mb-5 px-1">
           <div className="flex items-center gap-2">
             {/* 主题色 */}
@@ -132,24 +123,18 @@ export default function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
                 </div>
               )}
             </div>
-            {/* 底色 */}
-            <div className="relative flex-1">
-              <button onClick={() => setShowBgPresets(!showBgPresets)}
-                className="flex items-center gap-2 px-2 py-1.5 rounded-lg w-full text-xs text-dark-500 hover:bg-white/[0.04] transition-all">
-                <span className="text-[0.6rem]">🎨</span>
-                {!collapsed && <span>{bgPreset.name}</span>}
+            {/* 深/浅色模式切换 */}
+            <div className="flex flex-1 gap-1">
+              <button onClick={() => setMode('dark')}
+                className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs transition-all ${mode === 'dark' ? 'bg-white/[0.08] text-white' : 'text-dark-500 hover:bg-white/[0.04]'}`}>
+                <span className="text-[0.6rem]">🌙</span>
+                {!collapsed && <span>深色</span>}
               </button>
-              {showBgPresets && (
-                <div className="absolute bottom-full mb-1 left-0 bg-dark-100 border border-white/[0.08] rounded-xl p-2 shadow-xl z-50 min-w-[160px]">
-                  {bgPresets.map(b => (
-                    <button key={b.id} onClick={()=>{setBgPreset(b.id);setShowBgPresets(false)}}
-                      className={`block w-full text-left px-2.5 py-1 rounded-lg text-xs transition-all ${b.id===bgPreset.id?'bg-white/[0.08] text-white':'text-dark-500 hover:bg-white/[0.04]'}`}>
-                      <span className="inline-block w-2 h-2 rounded-full mr-2" style={{background:`hsl(${b.hue},${b.hue===0?0:60}%,${b.hue===0?20:50}%)`}}/>
-                      {b.name}
-                    </button>
-                  ))}
-                </div>
-              )}
+              <button onClick={() => setMode('light')}
+                className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs transition-all ${mode === 'light' ? 'bg-white/[0.08] text-white' : 'text-dark-500 hover:bg-white/[0.04]'}`}>
+                <span className="text-[0.6rem]">☀️</span>
+                {!collapsed && <span>浅色</span>}
+              </button>
             </div>
           </div>
         </div>
@@ -158,7 +143,7 @@ export default function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
           <div className="mb-5 px-1">
             {githubUrl && (
               <a href={githubUrl} target="_blank" rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 mb-3 px-3 py-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-dark-700 hover:text-dark-900 transition-colors group">
+                className="liquid-tag flex items-center justify-center gap-2 mb-3 px-3 py-2.5 rounded-2xl text-dark-700 hover:text-white transition-colors group">
                 <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
                 <span className="text-xs font-medium">GitHub</span>
               </a>
@@ -188,7 +173,7 @@ export default function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
           <Link to="/friends" onClick={onMobileClose} className={navLinkClassCollapsed(location.pathname === '/friends')} aria-label="友链"><Heart size={17} /></Link>
           {isAuthenticated && user?.role === 'admin' && (
             <Link to="/admin" onClick={onMobileClose}
-              className={`flex items-center justify-center w-9 h-9 rounded-xl transition-all ${location.pathname === '/admin' ? 'bg-accent-500/10 text-accent-400' : 'text-dark-500 hover:bg-accent-500/5 hover:text-accent-400'}`}
+              className={`liquid-nav flex items-center justify-center w-9 h-9 rounded-2xl ${location.pathname === '/admin' ? 'active text-accent-400' : 'text-dark-500 hover:text-accent-400'}`}
               aria-label="管理面板"><Shield size={17} /></Link>
           )}
           {isAuthenticated && user?.role !== 'guest' && (
@@ -198,7 +183,7 @@ export default function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
       )}
 
       {/* Bottom: User + Login/Logout + Theme */}
-      <div className={`mt-auto pt-4 border-t border-white/[0.04] ${collapsed ? 'space-y-1.5' : 'space-y-1'}`}>
+      <div className={`mt-auto pt-4 border-t border-white/[0.06] ${collapsed ? 'space-y-1.5' : 'space-y-1'}`}>
         {isAuthenticated ? (
           <div className={collapsed ? 'flex flex-col items-center gap-1.5' : 'space-y-1'}>
             <div className={`flex items-center ${collapsed ? 'flex-col gap-1.5' : 'gap-3 px-3 py-2 rounded-xl'}`}>
@@ -247,15 +232,15 @@ export default function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
 
   return (<>
     <aside ref={sidebarRef} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}
-      className={`hidden lg:flex flex-col fixed left-0 top-0 bottom-0 z-40 transition-[width] duration-200 ease-out glass-deep overflow-hidden ${collapsed ? 'w-16' : 'w-60 xl:w-64'}`}>
-      <div className="flex-1 overflow-y-auto p-3 scrollbar-thin">{sidebarContent}</div>
+      className={`hidden lg:flex flex-col fixed left-0 top-0 bottom-0 z-40 transition-[width] duration-300 ease-out glass-deep overflow-hidden ${collapsed ? 'w-16' : 'w-60 xl:w-64'}`}>
+      <div className="flex-1 overflow-y-auto p-3 scrollbar-thin relative z-10">{sidebarContent}</div>
     </aside>
 
     {isMobileOpen && (
       <div className="lg:hidden fixed inset-0 z-50">
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onMobileClose} />
         <aside className="absolute left-0 top-0 bottom-0 w-72 max-w-[85vw] glass-deep shadow-2xl animate-slide-up z-50">
-          <div className="h-full overflow-y-auto p-5">{sidebarContent}</div>
+          <div className="h-full overflow-y-auto p-5 relative z-10">{sidebarContent}</div>
         </aside>
       </div>
     )}
@@ -279,12 +264,12 @@ function TagsSection({ tags, articles, tagFilter, setTagFilter, collapsed }: {
   if (collapsed) return null;
   return (
     <div className="flex flex-wrap gap-1.5">
-      <button onClick={() => setTagFilter(null)} className={`tag text-xs ${tagFilter === null ? 'active' : ''}`}>全部</button>
+      <button onClick={() => setTagFilter(null)} className={`liquid-tag tag text-xs rounded-full ${tagFilter === null ? 'active' : ''}`}>全部</button>
       {visible.map(tag => (
-        <button key={tag} onClick={() => setTagFilter(tag === tagFilter ? null : tag)} className={`tag text-xs ${tag === tagFilter ? 'active' : ''}`}>{tag}</button>
+        <button key={tag} onClick={() => setTagFilter(tag === tagFilter ? null : tag)} className={`liquid-tag tag text-xs rounded-full ${tag === tagFilter ? 'active' : ''}`}>{tag}</button>
       ))}
       {sorted.length > visible.length && (
-        <button onClick={() => setExpanded(!expanded)} className="tag text-xs text-dark-500 hover:text-dark-700">
+        <button onClick={() => setExpanded(!expanded)} className="liquid-tag tag text-xs rounded-full text-dark-500 hover:text-dark-700">
           {expanded ? '收起' : `+${sorted.length - visible.length}更多`}
         </button>
       )}
@@ -334,7 +319,7 @@ function CalendarWidget({ articleData }: { articleData: { id: number; title: str
   };
 
   return (
-    <div className="select-none">
+    <div className="liquid-calendar select-none">
       <div className="flex items-center justify-between mb-2">
         <span className="text-xs font-semibold text-dark-700">{year}年{month+1}月</span>
         <div className="flex gap-0.5">
@@ -351,7 +336,7 @@ function CalendarWidget({ articleData }: { articleData: { id: number; title: str
           const ds = dateStr(d), arts = dateMap.get(ds), count = arts?.length || 0;
           return (
             <button key={d} onClick={() => handleClick(d)}
-              className={`relative w-7 h-7 rounded-lg text-[0.7rem] font-mono transition-all flex items-center justify-center
+              className={`liquid-calendar-day relative w-7 h-7 rounded-lg text-[0.7rem] font-mono flex items-center justify-center
                 ${ds === todayStr && ds !== selectedDate ? 'bg-accent-500/15 text-accent-400 font-bold' : ''}
                 ${ds === selectedDate ? 'bg-accent-500/20 text-accent-400 ring-1 ring-accent-400/30' : ''}
                 ${ds !== todayStr && ds !== selectedDate && count > 0 ? 'text-dark-700 font-semibold' : ''}

@@ -44,4 +44,20 @@ router.put('/about', requireAuth, adminOnly, validate(aboutSchema), async (req: 
   } catch (e) { next(e); }
 });
 
+/* ===== 背景图片管理 ===== */
+router.get('/backgrounds', requireAuth, adminOnly, async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    const items = await uploadService.listBackgrounds();
+    res.json({ success: true, data: items });
+  } catch (e) { next(e); }
+});
+
+router.delete('/backgrounds/:id', requireAuth, adminOnly, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    await uploadService.deleteBackground(id);
+    res.json({ success: true });
+  } catch (e) { next(e); }
+});
+
 export default router;

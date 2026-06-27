@@ -22,15 +22,16 @@ export default {
         '20': '80px',
         '24': '96px',
       },
-      /* ===== 设计令牌：圆角 — Apple HIG Squircle 连续曲率 ===== */
+      /* ===== 设计令牌：圆角 — 液态玻璃风格更圆润 ===== */
       borderRadius: {
         'xs': '6px',
         'sm': '8px',
         'md': '10px',
-        'lg': '12px',
-        'xl': '16px',
-        '2xl': '20px',
-        '3xl': '24px',
+        'lg': '14px',
+        'xl': '18px',
+        '2xl': '24px',
+        '3xl': '32px',
+        '4xl': '40px',
         'full': '9999px',
       },
       /* ===== 设计令牌：字体 ===== */
@@ -83,7 +84,7 @@ export default {
         dark: {
           0: '#0a0a0b',
           50: '#111113', 100: '#18181b', 200: '#1f1f23', 300: '#27272b',
-          400: '#3f3f46', 500: '#52525b', 600: '#71717a', 700: '#a1a1aa',
+          400: '#6b7280', 500: '#9ca3af', 600: '#d1d5db', 700: '#e5e7eb',
           800: '#d4d4d8', 900: '#e4e4e7', 950: '#f4f4f5',
         },
         /* 语义色 */
@@ -94,25 +95,25 @@ export default {
         /* 兼容旧色 */
         'apple-dark': {
           bg: '#0a0a0b', card: '#18181b', text: '#f4f4f5',
-          gray: '#a1a1aa', lightgray: '#52525b',
-          border: 'rgba(255,255,255,0.06)', tag: '#27272b', tagtext: '#a1a1aa',
+          gray: '#d4d4d8', lightgray: '#a1a1aa',
+          border: 'rgba(255,255,255,0.06)', tag: '#27272b', tagtext: '#d4d4d8',
         },
         /* 旧版 Tailwind 类名兼容 */
         apple: {
-          dark: '#1d1d1f',
-          gray: '#86868b',
-          lightgray: '#aeaeb2',
+          dark: '#2d2d2f',
+          gray: '#ababaf',
+          lightgray: '#c4c4c8',
           border: 'rgba(255,255,255,0.06)',
           tag: '#27272b',
-          tagtext: '#a1a1aa',
+          tagtext: '#d4d4d8',
           bg: '#0a0a0b',
           card: '#18181b',
         },
-        'apple-dark-gray': '#a1a1aa',
-        'apple-dark-lightgray': '#52525b',
+        'apple-dark-gray': '#d4d4d8',
+        'apple-dark-lightgray': '#a1a1aa',
         'apple-dark-border': 'rgba(255,255,255,0.06)',
         'apple-dark-tag': '#27272b',
-        'apple-dark-tagtext': '#a1a1aa',
+        'apple-dark-tagtext': '#d4d4d8',
         'apple-dark-text': '#f4f4f5',
       },
       /* ===== 设计令牌：阴影 ===== */
@@ -125,17 +126,19 @@ export default {
         'glow': '0 0 20px -4px rgb(99 102 241 / 0.2)',
         'inner-top': 'inset 0 1px 0 rgb(255 255 255 / 0.08)',
       },
-      /* ===== 设计令牌：动画 — Apple HIG 规范 ===== */
+      /* ===== 设计令牌：动画 — 液态玻璃动效 ===== */
       animation: {
         'fade-in': 'fadeIn 0.4s ease-out both',
-        'slide-up': 'slideUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both',
-        'slide-down': 'slideDown 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both',
-        'scale-in': 'scaleIn 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both',
+        'slide-up': 'slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both',
+        'slide-down': 'slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) both',
+        'scale-in': 'scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both',
         'page-enter': 'pageEnter 0.4s ease-out both',
         'shimmer': 'shimmer 2.5s ease-in-out infinite',
         'float': 'float 6s ease-in-out infinite',
         'pulse-soft': 'pulseSoft 3s ease-in-out infinite',
         'spin-slow': 'spin 20s linear infinite',
+        'liquid-glow': 'liquidGlow 4s ease-in-out infinite',
+        'iridescent': 'iridescentShift 6s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {
@@ -169,6 +172,24 @@ export default {
         pulseSoft: {
           '0%, 100%': { opacity: '0.6' },
           '50%': { opacity: '1' },
+        },
+        liquidGlow: {
+          '0%, 100%': {
+            boxShadow: '0 0 20px rgba(168, 85, 247, 0.1), 0 0 40px rgba(59, 130, 246, 0.05)',
+          },
+          '50%': {
+            boxShadow: '0 0 30px rgba(168, 85, 247, 0.2), 0 0 60px rgba(59, 130, 246, 0.1)',
+          },
+        },
+        iridescentShift: {
+          '0%, 100%': {
+            filter: 'hue-rotate(0deg)',
+            backgroundPosition: '0% 50%',
+          },
+          '50%': {
+            filter: 'hue-rotate(30deg)',
+            backgroundPosition: '100% 50%',
+          },
         },
       },
       /* ===== 设计令牌：过渡 ===== */

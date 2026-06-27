@@ -13,18 +13,7 @@ export const THEME_PRESETS: ThemePreset[] = [
   { id: 'amber',   name: '琥珀金', hue: 40,  saturation: 90, lightness: 55 },
 ];
 
-/* 底色预设：控制全站暗色背景的色调 */
-export interface BgPreset { id: string; name: string; hue: number; }
-export const BG_PRESETS: BgPreset[] = [
-  { id: 'void',     name: '纯黑',   hue: 0 },
-  { id: 'deepvoid', name: '深空黑', hue: 250 },
-  { id: 'navy',     name: '海军蓝', hue: 220 },
-  { id: 'charcoal', name: '墨灰',   hue: 260 },
-  { id: 'forestbg', name: '森林',   hue: 170 },
-  { id: 'warm',     name: '暖棕暗', hue: 20  },
-  { id: 'midnight', name: '午夜紫', hue: 280 },
-  { id: 'steel',    name: '钢铁蓝', hue: 210 },
-];
+export type Mode = 'dark' | 'light';
 
 function applyAccent(p: ThemePreset): void {
   const root = document.documentElement; const h = p.hue;
@@ -38,53 +27,72 @@ function applyAccent(p: ThemePreset): void {
   localStorage.setItem('theme-preset', p.id);
 }
 
-function applyBg(bg: BgPreset): void {
-  const root = document.documentElement;
-  root.style.setProperty('--bg-hue', String(bg.hue));
-  localStorage.setItem('bg-preset', bg.id);
-}
-
 interface ThemeContextValue {
-  preset: ThemePreset; presets: ThemePreset[];
+  preset: ThemePreset;
+  presets: ThemePreset[];
   setPreset: (id: string) => void;
-  bgPresets: BgPreset[]; bgPreset: BgPreset;
-  setBgPreset: (id: string) => void;
+  mode: Mode;
+  setMode: (m: Mode) => void;
+  bgImage: string | null;
+  setBgImage: (url: string | null) => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [presetId, setPresetId] = useState(() => localStorage.getItem('theme-preset') || 'nebula');
-  const [bgId, setBgId] = useState(() => localStorage.getItem('bg-preset') || 'void');
+  const [mode, setModeState] = useState<Mode>(() => {
+    const saved = localStorage.getItem('site-mode');
+    if (saved === 'dark' || saved === 'light') return saved;
+    // backward compatibility: ignore old 'bg-preset' key
+    return 'dark';
+  });
+  const [bgImage, setBgImageState] = useState<string | null>(() => localStorage.getItem('site-bg-image') || null);
 
   const preset = THEME_PRESETS.find(p => p.id === presetId) || THEME_PRESETS[0];
-  const bgPreset = BG_PRESETS.find(b => b.id === bgId) || BG_PRESETS[0];
 
+  // Apply accent preset
   useEffect(() => { applyAccent(preset); }, [preset]);
-  useEffect(() => { applyBg(bgPreset); }, [bgPreset]);
-  useEffect(() => { applyAccent(preset); applyBg(bgPreset); }, []);
 
-  // 注入全局底色 CSS
+  // Apply dark/light mode
   useEffect(() => {
-    const id = 'bg-override-style';
-    let el = document.getElementById(id) as HTMLStyleElement | null;
-    if (!el) { el = document.createElement('style'); el.id = id; document.head.appendChild(el); }
-    const h = bgPreset.hue;
-    const sat = h === 0 ? '0%' : '30%'; // 纯黑用 0% 饱和度
-    el.textContent = `
-      body,.min-h-screen{background:hsl(${h},${sat},${h===0?'5%':'7%'})!important}
-      .glass-deep,.glass-mid,.glass-light{background:hsla(${h},${sat},12%,0.82)!important}
-      footer{border-color:hsla(${h},50%,40%,0.12)!important}
-    `;
-  }, [bgPreset]);
+    const root = document.documentElement;
+    if (mode === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+    localStorage.setItem('site-mode', mode);
+  }, [mode]);
+
+  // Apply background image via inline style (highest specificity, survives CSS !important overrides)
+  useEffect(() => {
+    if (bgImage) {
+      document.body.style.backgroundImage = `url(${bgImage})`;
+      document.body.style.backgroundSize = 'cover';
+      document.body.style.backgroundPosition = 'center';
+      document.body.style.backgroundAttachment = 'fixed';
+    } else {
+      document.body.style.backgroundImage = '';
+      document.body.style.backgroundSize = '';
+      document.body.style.backgroundPosition = '';
+      document.body.style.backgroundAttachment = '';
+    }
+    localStorage.setItem('site-bg-image', bgImage || '');
+  }, [bgImage]);
+
+  // Initial application on mount
+  useEffect(() => { applyAccent(preset); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const setPreset = useCallback((id: string) => setPresetId(id), []);
-  const setBgPreset = useCallback((id: string) => setBgId(id), []);
+  const setMode = useCallback((m: Mode) => setModeState(m), []);
+  const setBgImage = useCallback((url: string | null) => setBgImageState(url), []);
 
-  const value = useMemo(() => ({
+  const value = useMemo<ThemeContextValue>(() => ({
     preset, presets: THEME_PRESETS, setPreset,
-    bgPresets: BG_PRESETS, bgPreset, setBgPreset,
-  }), [preset, setPreset, bgPreset, setBgPreset]);
+    mode, setMode,
+    bgImage, setBgImage,
+  }), [preset, setPreset, mode, setMode, bgImage, setBgImage]);
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }

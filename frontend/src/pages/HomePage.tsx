@@ -131,17 +131,17 @@ export default function HomePage(){
 
         {/* 经典/影院/唱片 切换 */}
         <div className="flex justify-center mb-5">
-          <div className="inline-flex items-center rounded-xl bg-white/[0.03] border border-white/[0.06] p-1">
+          <div className="inline-flex items-center gap-1 rounded-xl p-1">
             <button onClick={()=>setMode('classic')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${viewMode==='classic' ? 'bg-accent-500/15 text-accent-400 shadow-sm' : 'text-dark-500 hover:text-dark-700'}`}>
+              className={`liquid-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${viewMode==='classic' ? 'active text-accent-400' : 'text-dark-500 hover:text-dark-700'}`}>
               <LayoutGrid size={12}/>经典
             </button>
             <button onClick={()=>setMode('cinema')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${viewMode==='cinema' ? 'bg-accent-500/15 text-accent-400 shadow-sm' : 'text-dark-500 hover:text-dark-700'}`}>
+              className={`liquid-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${viewMode==='cinema' ? 'active text-accent-400' : 'text-dark-500 hover:text-dark-700'}`}>
               <Film size={12}/>影院
             </button>
             <button onClick={()=>setMode('album')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${viewMode==='album' ? 'bg-accent-500/15 text-accent-400 shadow-sm' : 'text-dark-500 hover:text-dark-700'}`}>
+              className={`liquid-tab flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${viewMode==='album' ? 'active text-accent-400' : 'text-dark-500 hover:text-dark-700'}`}>
               🎵唱片
             </button>
           </div>

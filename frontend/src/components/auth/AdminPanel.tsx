@@ -2,8 +2,9 @@ import { Helmet } from 'react-helmet-async';
 import { useAuth } from '@/context/AuthContext';
 import { useArticles } from '@/context/ArticleContext';
 import { logger } from '@/utils/logger';
-import { Shield, LogOut, Clock, FileText, Settings, Trash2, Plus, Eye, MessageCircle, Flame, Link2, Edit3, Save, X as XIcon, Menu, Upload, RefreshCw, Star, ExternalLink } from 'lucide-react';
+import { Shield, LogOut, Clock, FileText, Settings, Trash2, Plus, Eye, MessageCircle, Flame, Link2, Edit3, Save, X as XIcon, Menu, Upload, RefreshCw, Star, ExternalLink, Image as ImageIcon, Palette, ImagePlus } from 'lucide-react';
 import { useState, useCallback, useEffect } from 'react';
+import { useSiteTheme } from '@/context/SiteThemeContext';
 import { Link } from 'react-router-dom';
 import AdminArticleActions from '@/components/admin/AdminArticleActions';
 const PERMISSION_COUNT: Record<string, number> = { admin: 14, visitor: 5, guest: 4 };
@@ -170,6 +171,32 @@ export default function AdminPanel() {
 
   useEffect(() => { fetchSiteConfig(); }, [fetchSiteConfig]);
 
+  // Site theme: mode + bg image
+  const { mode, setMode, bgImage, setBgImage } = useSiteTheme();
+
+  const [bgUploading, setBgUploading] = useState(false);
+
+  const handleBgUpload = async (file: File) => {
+    const formData = new FormData();
+    formData.append('background', file);
+    setBgUploading(true);
+    try {
+      const resp = await fetch('/api/uploads/background', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
+      const json = await resp.json();
+      if (json.success && json.data?.url) {
+        setBgImage(json.data.url);
+      }
+    } catch {} finally {
+      setBgUploading(false);
+    }
+  };
+
+  const handleClearBg = () => setBgImage(null);
+
   const handleSaveSiteConfig = async () => {
     setSiteSaving(true);
     try {
@@ -187,6 +214,76 @@ export default function AdminPanel() {
       setSiteSaving(false);
     }
   };
+
+  // Background image list management
+  const [bgList, setBgList] = useState<{ id: number; url: string; name: string }[]>([]);
+  const [currentBg, setCurrentBg] = useState(() => localStorage.getItem('site-bg-image') || '');
+  const [currentBgTheme, setCurrentBgTheme] = useState(() => localStorage.getItem('bg-preset') || 'void');
+
+  const fetchBgList = useCallback(() => {
+    fetch('/api/config/backgrounds', { credentials: 'include' })
+      .then((r) => r.json())
+      .then((json) => { if (json.success) setBgList(json.data || []); })
+      .catch(() => {});
+  }, []);
+
+  const handleBgUploadList = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setBgUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('background', file);
+      const resp = await fetch('/api/uploads/background', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
+      const json = await resp.json();
+      if (json.success) {
+        fetchBgList();
+      }
+    } catch {} finally {
+      setBgUploading(false);
+    }
+  };
+
+  const handleSetBg = (url: string) => {
+    localStorage.setItem('site-bg-image', url);
+    setCurrentBg(url);
+    const el = document.getElementById('bg-image-style') as HTMLStyleElement | null;
+    if (el) {
+      el.textContent = `body { background-image: url('${url}'); background-size: cover; background-position: center; background-attachment: fixed; }`;
+    }
+  };
+
+  const handleDeleteBg = async (id: number) => {
+    if (!confirm('确定删除此背景图片？')) return;
+    try {
+      const resp = await fetch(`/api/config/backgrounds/${id}`, { method: 'DELETE', credentials: 'include' });
+      const json = await resp.json();
+      if (json.success) fetchBgList();
+    } catch {}
+  };
+
+  const handleSetBgTheme = (id: string) => {
+    setCurrentBgTheme(id);
+    localStorage.setItem('bg-preset', id);
+    localStorage.removeItem('site-bg-image');
+    setCurrentBg('');
+    const el = document.getElementById('bg-image-style') as HTMLStyleElement | null;
+    if (el) el.textContent = '';
+    const presets: Record<string, number> = { void: 0, deepvoid: 250, navy: 220, charcoal: 260 };
+    document.documentElement.style.setProperty('--bg-hue', String(presets[id] ?? 0));
+    const bgStyle = document.getElementById('bg-override-style');
+    if (bgStyle) {
+      const h = presets[id] ?? 0;
+      const sat = h === 0 ? '0%' : '30%';
+      bgStyle.textContent = `body,.min-h-screen{background:hsl(${h},${sat},5%)!important}`;
+    }
+  };
+
+  useEffect(() => { fetchBgList(); }, [fetchBgList]);
 
   const resetLinkForm = () => {
     setEditingLink(null);
@@ -267,13 +364,13 @@ export default function AdminPanel() {
         </header>
 
         <div className="flex gap-2 mb-6 flex-wrap">
-          <button onClick={() => setActiveSection('stats')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeSection === 'stats' ? 'bg-apple-dark dark:bg-white text-white dark:text-apple-dark' : 'bg-gray-100 dark:bg-gray-800 text-apple-gray dark:text-apple-dark-gray hover:bg-gray-200 dark:hover:bg-gray-700'}`}>系统概览</button>
-          <button onClick={() => setActiveSection('articles')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeSection === 'articles' ? 'bg-apple-dark dark:bg-white text-white dark:text-apple-dark' : 'bg-gray-100 dark:bg-gray-800 text-apple-gray dark:text-apple-dark-gray hover:bg-gray-200 dark:hover:bg-gray-700'}`}>文章管理</button>
-          <button onClick={() => { setActiveSection('logs'); refreshLogs(); }} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeSection === 'logs' ? 'bg-apple-dark dark:bg-white text-white dark:text-apple-dark' : 'bg-gray-100 dark:bg-gray-800 text-apple-gray dark:text-apple-dark-gray hover:bg-gray-200 dark:hover:bg-gray-700'}`}>安全日志</button>
-          <button onClick={() => { setActiveSection('friendLinks'); fetchFriendLinks(); }} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeSection === 'friendLinks' ? 'bg-apple-dark dark:bg-white text-white dark:text-apple-dark' : 'bg-gray-100 dark:bg-gray-800 text-apple-gray dark:text-apple-dark-gray hover:bg-gray-200 dark:hover:bg-gray-700'}`}>友链管理</button>
-          <button onClick={() => { setActiveSection('music'); fetchMusic(); }} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeSection === 'music' ? 'bg-apple-dark dark:bg-white text-white dark:text-apple-dark' : 'bg-gray-100 dark:bg-gray-800 text-apple-gray dark:text-apple-dark-gray hover:bg-gray-200 dark:hover:bg-gray-700'}`}>音乐管理</button>
-          <button onClick={() => { setActiveSection('category'); fetchCategories(); }} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeSection === 'category' ? 'bg-apple-dark dark:bg-white text-white dark:text-apple-dark' : 'bg-gray-100 dark:bg-gray-800 text-apple-gray dark:text-apple-dark-gray hover:bg-gray-200 dark:hover:bg-gray-700'}`}>分类管理</button>
-          <button onClick={() => { setActiveSection('site'); fetchSiteConfig(); }} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeSection === 'site' ? 'bg-apple-dark dark:bg-white text-white dark:text-apple-dark' : 'bg-gray-100 dark:bg-gray-800 text-apple-gray dark:text-apple-dark-gray hover:bg-gray-200 dark:hover:bg-gray-700'}`}>站点设置</button>
+          {([
+            ['stats', '系统概览'], ['articles', '文章管理'], ['logs', '安全日志'],
+            ['friendLinks', '友链管理'], ['music', '音乐管理'], ['category', '分类管理'], ['site', '站点设置']
+          ] as const).map(([key, label]) => (
+            <button key={key} onClick={() => { setActiveSection(key); if (key === 'logs') refreshLogs(); if (key === 'friendLinks') fetchFriendLinks(); if (key === 'music') fetchMusic(); if (key === 'category') fetchCategories(); if (key === 'site') fetchSiteConfig(); }}
+              className={`liquid-tab px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeSection === key ? 'active text-white' : 'text-gray-300 hover:text-white'}`}>{label}</button>
+          ))}
         </div>
 
         {activeSection === 'stats' && (
@@ -813,53 +910,67 @@ export default function AdminPanel() {
         {activeSection === 'site' && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-apple-dark dark:text-white">
-                站点设置
-              </h3>
+              <h3 className="text-sm font-semibold text-apple-dark dark:text-white">站点设置</h3>
             </div>
             <div className="card p-5">
               <div className="space-y-3">
                 <div>
                   <label className="block text-xs font-medium text-apple-gray dark:text-apple-dark-gray mb-1">站点名称</label>
-                  <input
-                    type="text"
-                    value={siteConfig.siteName}
-                    onChange={(e) => setSiteConfig((prev) => ({ ...prev, siteName: e.target.value }))}
-                    placeholder="站点名称"
-                    maxLength={200}
-                    className="w-full p-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-apple-dark dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
-                  />
+                  <input type="text" value={siteConfig.siteName} onChange={(e) => setSiteConfig((prev) => ({ ...prev, siteName: e.target.value }))} placeholder="站点名称" maxLength={200}
+                    className="w-full p-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-apple-dark dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-apple-gray dark:text-apple-dark-gray mb-1">站点描述</label>
-                  <input
-                    type="text"
-                    value={siteConfig.siteDesc}
-                    onChange={(e) => setSiteConfig((prev) => ({ ...prev, siteDesc: e.target.value }))}
-                    placeholder="站点描述"
-                    maxLength={500}
-                    className="w-full p-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-apple-dark dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
-                  />
+                  <input type="text" value={siteConfig.siteDesc} onChange={(e) => setSiteConfig((prev) => ({ ...prev, siteDesc: e.target.value }))} placeholder="站点描述" maxLength={500}
+                    className="w-full p-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-apple-dark dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-apple-gray dark:text-apple-dark-gray mb-1">头像链接</label>
-                  <input
-                    type="url"
-                    value={siteConfig.avatarUrl}
-                    onChange={(e) => setSiteConfig((prev) => ({ ...prev, avatarUrl: e.target.value }))}
-                    placeholder="头像链接 https://"
-                    maxLength={500}
-                    className="w-full p-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-apple-dark dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
-                  />
+                  <input type="url" value={siteConfig.avatarUrl} onChange={(e) => setSiteConfig((prev) => ({ ...prev, avatarUrl: e.target.value }))} placeholder="头像链接 https://" maxLength={500}
+                    className="w-full p-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-apple-dark dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all" />
                 </div>
                 <div className="flex gap-2">
-                  <button
-                    onClick={handleSaveSiteConfig}
-                    disabled={siteSaving}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-500 text-white text-sm font-medium hover:bg-blue-600 disabled:opacity-50 transition-colors"
-                  >
+                  <button onClick={handleSaveSiteConfig} disabled={siteSaving} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-500 text-white text-sm font-medium hover:bg-blue-600 disabled:opacity-50 transition-colors">
                     <Save size={14} /> {siteSaving ? '保存中...' : '保存设置'}
                   </button>
+                </div>
+              </div>
+            </div>
+            <div className="card p-5">
+              <h4 className="text-sm font-semibold text-apple-dark dark:text-white mb-3 flex items-center gap-2"><ImagePlus size={16} /> 背景设置</h4>
+              <div className="space-y-4">
+                {/* Dark / Light mode toggle */}
+                <div>
+                  <label className="block text-xs font-medium text-apple-gray dark:text-apple-dark-gray mb-2">显示模式</label>
+                  <div className="flex gap-2">
+                    <button onClick={() => setMode('dark')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${mode === 'dark' ? 'bg-blue-500 text-white' : 'bg-gray-100 dark:bg-gray-800 text-apple-dark dark:text-white'}`}>深色</button>
+                    <button onClick={() => setMode('light')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${mode === 'light' ? 'bg-blue-500 text-white' : 'bg-gray-100 dark:bg-gray-800 text-apple-dark dark:text-white'}`}>浅色</button>
+                  </div>
+                </div>
+
+                {/* Background image upload */}
+                <div>
+                  <label className="block text-xs font-medium text-apple-gray dark:text-apple-dark-gray mb-2">背景图片</label>
+                  <div className="flex items-center gap-3 mb-3">
+                    <label className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-500 text-white text-sm font-medium hover:bg-blue-600 transition-colors cursor-pointer">
+                      <Upload size={14} /> 上传图片
+                      <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleBgUpload(f); }} disabled={bgUploading} />
+                    </label>
+                    {bgUploading && <span className="text-xs text-apple-gray">上传中...</span>}
+                    {bgImage && (
+                      <button onClick={handleClearBg} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition-colors">
+                        <Trash2 size={14} /> 清除背景
+                      </button>
+                    )}
+                  </div>
+                  {bgImage ? (
+                    <div className="relative rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 aspect-video">
+                      <img src={bgImage} alt="背景预览" className="w-full h-full object-cover" loading="lazy" />
+                      <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-blue-500 text-white text-[0.6rem] font-medium">当前背景</span>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-apple-gray dark:text-apple-dark-gray text-center py-4">暂无自定义背景图</p>
+                  )}
                 </div>
               </div>
             </div>

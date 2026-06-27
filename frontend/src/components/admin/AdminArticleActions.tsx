@@ -168,24 +168,24 @@ export default function AdminArticleActions({
     <div className="flex items-center gap-1.5">
       <button
         onClick={handleTogglePin}
-        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${pinned ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400' : 'bg-gray-100 dark:bg-gray-800 text-apple-gray dark:text-apple-dark-gray hover:bg-amber-50 dark:hover:bg-amber-900/20 hover:text-amber-600'}`}
+        className={`btn-ghost px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${pinned ? 'text-amber-500' : 'text-gray-300 hover:text-amber-500'}`}
         title={pinned ? '取消置顶' : '置顶文章'}
       >
         <Pin size={13} />
         {pinned ? '已置顶' : '置顶'}
       </button>
-      <button onClick={handleEdit} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-800 text-apple-gray dark:text-apple-dark-gray hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 transition-all flex items-center gap-1.5">
+      <button onClick={handleEdit} className="btn-ghost px-3 py-1.5 rounded-lg text-xs font-medium text-gray-300 hover:text-blue-500 transition-all flex items-center gap-1.5">
         <Edit size={13} />编辑
       </button>
-      <button onClick={handleCopyLink} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-800 text-apple-gray dark:text-apple-dark-gray hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-600 transition-all flex items-center gap-1.5">
+      <button onClick={handleCopyLink} className="btn-ghost px-3 py-1.5 rounded-lg text-xs font-medium text-gray-300 hover:text-green-500 transition-all flex items-center gap-1.5">
         <Copy size={13} />复制
       </button>
-      <button onClick={handleDelete} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${confirmDelete ? 'bg-red-500 text-white' : 'bg-gray-100 dark:bg-gray-800 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'}`}>
+      <button onClick={handleDelete} className={`btn-ghost px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${confirmDelete ? 'text-red-400 border-red-500/30' : 'text-red-500 hover:text-red-400'}`}>
         <Trash2 size={13} />
         {confirmDelete ? '确认删除' : '删除'}
       </button>
       {confirmDelete && (
-        <button onClick={() => setConfirmDelete(false)} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-800 text-apple-gray dark:text-apple-dark-gray hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">
+        <button onClick={() => setConfirmDelete(false)} className="btn-ghost px-3 py-1.5 rounded-lg text-xs font-medium text-gray-300 hover:text-gray-400 transition-all">
           取消
         </button>
       )}
