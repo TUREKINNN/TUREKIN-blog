@@ -31,7 +31,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   } catch (e) { next(e); }
 });
 
-router.get('/dates', async (_req, res) => {
+router.get('/dates', async (_req, res, next) => {
   try {
     const articles = await prisma.article.findMany({
       select: { id: true, title: true, publishDate: true },
@@ -42,10 +42,7 @@ router.get('/dates', async (_req, res) => {
       return { id: a.id, title: a.title, date: d.toISOString().split('T')[0] };
     });
     res.json({ success: true, data: result });
-  } catch (err) {
-    console.error('[articles] GET /dates error:', err);
-    res.status(500).json({ success: false, error: { message: '获取日期列表失败' } });
-  }
+  } catch (e) { next(e); }
 });
 
 router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {

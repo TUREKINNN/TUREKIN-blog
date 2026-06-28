@@ -17,7 +17,7 @@ export function globalErrorHandler(
 
   if (err.name === 'MulterError') {
     const messages: Record<string, string> = {
-      LIMIT_FILE_SIZE: '文件大小不能超过 10MB',
+      LIMIT_FILE_SIZE: '文件大小不能超过 100MB',
       LIMIT_FILE_COUNT: '一次只能上传一个文件',
       LIMIT_UNEXPECTED_FILE: '非预期的上传字段',
     };

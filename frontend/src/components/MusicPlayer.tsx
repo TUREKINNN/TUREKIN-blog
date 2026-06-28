@@ -2,14 +2,14 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Play, Pause, SkipBack, SkipForward, Music, ChevronUp, ChevronDown, Volume2 } from 'lucide-react';
 
 interface Song {
-  id: number; title: string; artist: string; url: string;
-  coverUrl: string | null; duration: number; sortOrder: number;
+  id: number; title: string; artist: string; audioUrl: string;
+  coverUrl: string | null; duration: number;
 }
 
-// 重写 /uploads/music/ 路径到 /assets/music/（nginx 静态目录）
+// /uploads/ 路径通过 Nginx 代理到后端直接访问
 function rewriteUrl(url: string | null): string | null {
   if (!url) return null;
-  return url.replace('/uploads/music/', '/assets/music/');
+  return url;
 }
 
 export default function MusicPlayer() {
@@ -48,7 +48,7 @@ export default function MusicPlayer() {
   // 切歌时加载新音源 — 不自动播放，只加载
   useEffect(() => {
     if (!song) return;
-    const url = rewriteUrl(song.url);
+    const url = rewriteUrl(song.audioUrl);
     if (!url) return;
     audio.src = url;
     audio.load();

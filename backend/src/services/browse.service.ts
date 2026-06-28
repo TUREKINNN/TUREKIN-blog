@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import prisma from '../lib/prisma';
 
 const DATA_DIR = path.resolve(process.env.UPLOAD_DIR || './uploads', '../data');
 const FILE_PATH = path.join(DATA_DIR, 'browse_sessions.json');

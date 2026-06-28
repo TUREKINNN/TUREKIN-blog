@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { validate } from '../middleware/validate';
 import { requireAuth } from '../middleware/auth';
+import { adminOnly } from '../middleware/adminOnly';
 import { uploadSingle } from '../middleware/upload';
 import * as authService from '../services/auth.service';
 import { AppError } from '../utils/errors';
@@ -78,7 +79,8 @@ router.post('/guest', async (req: Request, res: Response, next: NextFunction) =>
 router.post('/logout', (req: Request, res: Response, next: NextFunction) => {
   req.session.destroy((err: any) => {
     if (err) return next(err);
-    res.clearCookie('connect.sid');
+    const cookieName = (req.session as any)?.cookie?.name || 'connect.sid';
+    res.clearCookie(cookieName);
     res.json({ success: true, data: null });
   });
 });
@@ -104,11 +106,8 @@ router.get('/admin-profile', async (_req: Request, res: Response, next: NextFunc
   }
 });
 
-router.post('/avatar', requireAuth, uploadSingle('avatar'), async (req: Request, res: Response, next: NextFunction) => {
+router.post('/avatar', requireAuth, adminOnly, uploadSingle('avatar'), async (req: Request, res: Response, next: NextFunction) => {
   try {
-    if (req.session.role === 'guest') {
-      throw new AppError(403, 'FORBIDDEN', '游客账户无法修改头像');
-    }
     if (!req.file) {
       throw new AppError(400, 'BAD_REQUEST', '请选择图片文件');
     }
@@ -119,11 +118,8 @@ router.post('/avatar', requireAuth, uploadSingle('avatar'), async (req: Request,
   }
 });
 
-router.patch('/profile', requireAuth, validate(profileSchema), async (req: Request, res: Response, next: NextFunction) => {
+router.patch('/profile', requireAuth, adminOnly, validate(profileSchema), async (req: Request, res: Response, next: NextFunction) => {
   try {
-    if (req.session.role === 'guest') {
-      throw new AppError(403, 'FORBIDDEN', '游客账户无法修改个人信息');
-    }
     const { username, displayName, password, currentPassword } = req.body;
     const user = await authService.updateProfile(req.session.userId!, { username, displayName, password, currentPassword });
     res.json({ success: true, data: user });

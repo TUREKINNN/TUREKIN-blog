@@ -33,6 +33,7 @@ model Article {
   coverImage  String?   @map("cover_image") @db.VarChar(500)
   tags        Json      @default("[]")
   readTime    Int       @default(5) @map("read_time")
+  category    String?   @db.VarChar(50)
   likes       Int       @default(0)
   pinned      Boolean   @default(false)
   authorId    Int       @map("author_id")
@@ -117,4 +118,17 @@ model FriendLink {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@map("friend_links")
+}
+
+model Music {
+  id        Int      @id @default(autoincrement())
+  title     String   @db.VarChar(200)
+  artist    String   @db.VarChar(200)
+  coverUrl  String?  @map("cover_url") @db.VarChar(500)
+  audioUrl  String   @map("audio_url") @db.VarChar(500)
+  duration  Int?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("music")
 }

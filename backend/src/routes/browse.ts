@@ -1,6 +1,6 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { z } from 'zod';
-import { recordBrowseSession } from '../services/browse.service';
+import { recordBrowseSession, getArticleBrowseStats } from '../services/browse.service';
 
 const router = Router();
 
@@ -40,7 +40,6 @@ router.get('/article/:id', async (req: Request, res: Response, next: NextFunctio
       res.status(400).json({ success: false, error: { code: 'BAD_REQUEST', message: '无效的文章ID' } });
       return;
     }
-    const { getArticleBrowseStats } = require('../services/browse.service');
     const stats = await getArticleBrowseStats(articleId);
     res.json({ success: true, data: stats });
   } catch (e) {

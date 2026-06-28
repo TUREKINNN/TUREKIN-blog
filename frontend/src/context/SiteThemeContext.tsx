@@ -68,15 +68,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   // Apply background image via inline style (highest specificity, survives CSS !important overrides)
   useEffect(() => {
     if (bgImage) {
-      document.body.style.backgroundImage = `url(${bgImage})`;
-      document.body.style.backgroundSize = 'cover';
-      document.body.style.backgroundPosition = 'center';
-      document.body.style.backgroundAttachment = 'fixed';
+      document.body.style.setProperty('background-image', `url(${bgImage})`, 'important');
+      document.body.style.setProperty('background-size', 'cover', 'important');
+      document.body.style.setProperty('background-position', 'center', 'important');
+      document.body.style.setProperty('background-attachment', 'fixed', 'important');
     } else {
-      document.body.style.backgroundImage = '';
-      document.body.style.backgroundSize = '';
-      document.body.style.backgroundPosition = '';
-      document.body.style.backgroundAttachment = '';
+      document.body.style.removeProperty('background-image');
+      document.body.style.removeProperty('background-size');
+      document.body.style.removeProperty('background-position');
+      document.body.style.removeProperty('background-attachment');
     }
     localStorage.setItem('site-bg-image', bgImage || '');
   }, [bgImage]);

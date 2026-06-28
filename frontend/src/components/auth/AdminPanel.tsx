@@ -53,7 +53,7 @@ export default function AdminPanel() {
 
   // Music management
   const [musicList, setMusicList] = useState<any[]>([]);
-  const [musicForm, setMusicForm] = useState({ name: '', artist: '', audioUrl: '', coverUrl: '' });
+  const [musicForm, setMusicForm] = useState({ title: '', artist: '', audioUrl: '', coverUrl: '' });
   const [musicSaving, setMusicSaving] = useState(false);
 
   const fetchMusic = useCallback(() => {
@@ -64,22 +64,22 @@ export default function AdminPanel() {
   }, []);
 
   useEffect(() => { fetchMusic(); }, [fetchMusic]);
-
-  const handleSaveMusic = async () => {
-    const { name, artist, audioUrl, coverUrl } = musicForm;
-    if (!name || !artist || !audioUrl || !coverUrl) return;
-    setMusicSaving(true);
-    try {
-      const resp = await fetch('/api/music', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(musicForm),
-      });
+ 
+   const handleSaveMusic = async () => {
+     const { title, artist, audioUrl, coverUrl } = musicForm;
+     if (!title || !artist || !audioUrl || !coverUrl) return;
+     setMusicSaving(true);
+     try {
+       const resp = await fetch('/api/music', {
+         method: 'POST',
+         credentials: 'include',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ title, artist, audioUrl, coverUrl }),
+       });
       const json = await resp.json();
       if (json.success) {
         fetchMusic();
-        setMusicForm({ name: '', artist: '', audioUrl: '', coverUrl: '' });
+        setMusicForm({ title: '', artist: '', audioUrl: '', coverUrl: '' });
       }
     } catch {} finally {
       setMusicSaving(false);
@@ -743,8 +743,8 @@ export default function AdminPanel() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <input
                     type="text"
-                    value={musicForm.name}
-                    onChange={(e) => setMusicForm((prev) => ({ ...prev, name: e.target.value }))}
+                    value={musicForm.title}
+                    onChange={(e) => setMusicForm((prev) => ({ ...prev, title: e.target.value }))}
                     placeholder="歌曲名称"
                     maxLength={200}
                     className="p-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-apple-dark dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-400/30 transition-all"
@@ -777,7 +777,7 @@ export default function AdminPanel() {
                 <div className="flex gap-2">
                   <button
                     onClick={handleSaveMusic}
-                    disabled={musicSaving || !musicForm.name || !musicForm.artist || !musicForm.audioUrl || !musicForm.coverUrl}
+                    disabled={musicSaving || !musicForm.title || !musicForm.artist || !musicForm.audioUrl || !musicForm.coverUrl}
                     className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-green-500 text-white text-sm font-medium hover:bg-green-600 disabled:opacity-50 transition-colors"
                   >
                     <Save size={14} /> {musicSaving ? '保存中...' : '保存'}
@@ -804,13 +804,13 @@ export default function AdminPanel() {
                             {song.coverUrl && (
                               <img
                                 src={song.coverUrl}
-                                alt={song.name}
+                                alt={song.title}
                                 className="w-7 h-7 rounded object-cover flex-shrink-0 bg-gray-200 dark:bg-gray-700"
                                 onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                               />
                             )}
                             <div className="min-w-0">
-                              <p className="text-apple-dark dark:text-white font-medium truncate max-w-[200px]">{song.name}</p>
+                              <p className="text-apple-dark dark:text-white font-medium truncate max-w-[200px]">{song.title}</p>
                             </div>
                           </div>
                         </td>

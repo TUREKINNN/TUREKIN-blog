@@ -80,7 +80,7 @@ export default function LazyImage({ src, alt, className = '', onClick, fallback 
         <img
           src={src}
           alt={alt}
-          loading="lazy"
+          loading={inView ? 'eager' : undefined}
           decoding="async"
           onLoad={handleLoad}
           onError={handleError}

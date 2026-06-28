@@ -16,7 +16,3 @@ export function requireAuth(req: Request, _res: Response, next: NextFunction): v
   console.log('[AUTH] OK userId=' + req.session.userId + ' role=' + req.session.role);
   next();
 }
-
-export function optionalAuth(req: Request, _res: Response, next: NextFunction): void {
-  next();
-}
